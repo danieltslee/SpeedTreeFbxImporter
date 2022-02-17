@@ -4,15 +4,17 @@ API for building tree fbx subnet given SpeedTree Fbx imports
 
 import hou
 import os
-import classNodeNetwork as cnn
+from . import classNodeNetwork
 
 def importSpeedTreeFbx():
     """ Imports all Speed Tree fbx files in a directory and collapses into a single subnet
     Returns subnet with cleaned geometry nodes"""
+
+    # TODO MAKE SEPARATE FUNCTION FOR FBXFILESLIST
     hipPath = hou.hipFile.path()
     hipBaseName = hou.hipFile.basename()
     hipDir = hipPath.replace(hipBaseName, "")
-    treeName = "BosternFern"
+    treeName = "BostonFern"
     fileDir = "{HIPDIR}assets/myTrees/BostonFern/".format(HIPDIR=hipDir)
     fileName = "BostonFern_varB.fbx"
     fullPath = fileDir + fileName
@@ -44,7 +46,7 @@ def importSpeedTreeFbx():
                                                    import_into_object_subnet=True,
                                                    create_sibling_bones=False)
 
-        mySubnet = cnn.MyNetwork(subnet)
+        mySubnet = classNodeNetwork.MyNetwork(subnet)
         mySubnet.cleanNetwork("shopnet", method="type")
         subnetChildren = mySubnet.extractChildren()
 
@@ -63,14 +65,14 @@ def importSpeedTreeFbx():
 def AssignMaterials(subnet):
     """ Creates s@shop_materialpath attribute to existing primitive groups
     Returns formatted subnet and matnetName"""
-    treeSubnet = cnn.MyNetwork(subnet)
+    treeSubnet = classNodeNetwork.MyNetwork(subnet)
     treeName = subnet.name()
 
     for treeGeo in treeSubnet.children:
         treeGeo.parm("tx").revertToDefaults()
         treeGeo.parm("ty").revertToDefaults()
         treeGeo.parm("tz").revertToDefaults()
-        treeGeoNet = cnn.MyNetwork(treeGeo)
+        treeGeoNet = classNodeNetwork.MyNetwork(treeGeo)
         print("Creating MaterialAssignments for " + treeGeoNet.name)
 
         # Prefix of new nodes
@@ -122,7 +124,7 @@ def createMatnet(subnet, matnetName):
 
     # Query first tree geo node in subnet
     treeGeo = treeSubnet.children()[0]
-    treeGeoNet = cnn.MyNetwork(treeGeo)
+    treeGeoNet = classNodeNetwork.MyNetwork(treeGeo)
 
     # Create material networks based on existing group nodes
     groupNodes = treeGeoNet.findNodes("group", method="name")

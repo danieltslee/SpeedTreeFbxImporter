@@ -4,7 +4,7 @@ API for creating tree scatter subnet
 
 import hou
 import os
-import classNodeNetwork as cnn
+from . import classNodeNetwork as cnn
 from collections import defaultdict
 
 
@@ -85,7 +85,7 @@ def createTreeScatterSubnet(subnet, hfGeoNode):
     scatterSubnet.layoutChildren()
 
 def exe():
-    subnet = hou.node("/obj/FloodedGum")
+    subnet = hou.node("/obj/BostonFern")
     hfGeoNode = hou.node("/obj/hf_scatter_example")
 
     createTreeScatterSubnet(subnet, hfGeoNode)
