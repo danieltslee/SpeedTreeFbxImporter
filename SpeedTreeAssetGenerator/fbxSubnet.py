@@ -6,32 +6,40 @@ import hou
 import os
 from . import classNodeNetwork
 
-def importSpeedTreeFbx():
-    """ Imports all Speed Tree fbx files in a directory and collapses into a single subnet
-    Returns subnet with cleaned geometry nodes"""
-
-    # TODO MAKE SEPARATE FUNCTION FOR FBXFILESLIST
-    hipPath = hou.hipFile.path()
-    hipBaseName = hou.hipFile.basename()
-    hipDir = hipPath.replace(hipBaseName, "")
-    treeName = "BostonFern"
-    fileDir = "{HIPDIR}assets/myTrees/BostonFern/".format(HIPDIR=hipDir)
-    fileName = "BostonFern_varB.fbx"
-    fullPath = fileDir + fileName
+def getFbxFilesList(rootDir):
+    """ Returns a list of fbx file paths """
 
     # Find fbx files in directory
+    fbxFilePaths = []
     fbxFiles = []
-    for file in os.listdir(fileDir):
-        if file.endswith(".fbx"):
-            fbxFiles.append(os.path.join(fileDir, file))
+    for (root, dirs, files) in os.walk(rootDir):
+        for file in files:
+            if file.endswith(".fbx"):
+                fbxFilePaths.append(os.path.join(root, file))
+                fbxFiles.append(file)
+
+    return fbxFilePaths, fbxFiles
+
+
+def importSpeedTreeFbx(fbxFilePathsList, treeName):
+    """ Imports all Speed Tree fbx files in a directory and collapses into a single subnet
+    Returns subnet with cleaned geometry nodes """
 
     # Define obj context
     obj = hou.node("/obj")
 
+    # If subnet already exists, delete it
+    oldTreeSubnet = hou.node("/obj/{TREENAME}".format(TREENAME=treeName))
+    if oldTreeSubnet:
+        action = "Updated"
+        oldTreeSubnet.destroy()
+    else:
+        action = "Created"
+
     # Import Fbx geo and collapse into subnet
     subnetGeos = []
-    for fbxFile in fbxFiles:
-        subnet, importMsgs = hou.hipFile.importFBX(fbxFile, import_cameras=False,
+    for fbxFile in fbxFilePathsList:
+        importedSubnet, importMsgs = hou.hipFile.importFBX(fbxFile, import_cameras=False,
                                                    import_joints_and_skin=False,
                                                    import_lights=False,
                                                    import_animation=False,
@@ -46,16 +54,20 @@ def importSpeedTreeFbx():
                                                    import_into_object_subnet=True,
                                                    create_sibling_bones=False)
 
-        mySubnet = classNodeNetwork.MyNetwork(subnet)
+        mySubnet = classNodeNetwork.MyNetwork(importedSubnet)
         mySubnet.cleanNetwork("shopnet", method="type")
         subnetChildren = mySubnet.extractChildren()
 
         for subnetChild in subnetChildren:
             subnetGeos.append(subnetChild)
 
-        subnet.destroy()
+        importedSubnet.destroy()
 
     collapsedSubnet = obj.collapseIntoSubnet(subnetGeos, treeName)
+    print("{ACTION} Tree Subnet: {TREENAME}".format(ACTION=action, TREENAME=treeName))
+    # Set subnet color
+    subnetColor = hou.Color((.71, .518, .004))
+    collapsedSubnet.setColor(subnetColor)
     # Layout children
     collapsedSubnet.layoutChildren()
 
@@ -129,7 +141,7 @@ def createMatnet(subnet, matnetName):
     # Create material networks based on existing group nodes
     groupNodes = treeGeoNet.findNodes("group", method="name")
     groupNodeNames = [groupNode.name() for groupNode in groupNodes]
-    groupMaterials = [groupNodeName.replace("_group","") for groupNodeName in groupNodeNames]
+    groupMaterials = [groupNodeName.replace("_group", "") for groupNodeName in groupNodeNames]
     print(groupMaterials)
     """
     for groupMaterial in groupMaterials:
@@ -141,8 +153,22 @@ def createMatnet(subnet, matnetName):
 
 
 def exe():
-    treeSubnet = importSpeedTreeFbx()
-    treeSubnet, matnetName = AssignMaterials(treeSubnet)
-    createMatnet(treeSubnet, matnetName)
 
+    # Get hip directory path
+    hipPath = hou.hipFile.path()
+    hipBaseName = hou.hipFile.basename()
+    hipDir = hipPath.replace(hipBaseName, "")
+
+    fbxFilePaths, fbxFiles = getFbxFilesList("{HIPDIR}assets/myTrees/BostonFern".format(HIPDIR=hipDir))
+
+    for i in range(len(fbxFiles)):
+        print(fbxFilePaths[i])
+        print(fbxFiles[i])
+
+    treeSubnet = importSpeedTreeFbx(fbxFilePaths, "BostonFern")
+    treeSubnet, matnetName = AssignMaterials(treeSubnet)
+
+    """
+    createMatnet(treeSubnet, matnetName)
+    """
 
