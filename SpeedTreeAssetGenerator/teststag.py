@@ -3,6 +3,7 @@ test python file
 """
 
 import hou
+from . import fbxSubnet
 from . import fbxSubnetFormat
 
 def myFunc():
@@ -17,19 +18,18 @@ def myFunc():
 
 
 def exe():
-
     # Get hip directory path
     hipPath = hou.hipFile.path()
     hipBaseName = hou.hipFile.basename()
     hipDir = hipPath.replace(hipBaseName, "")
 
-    fbxImportFormat = getFbxFilesList("{HIPDIR}assets/myTrees/Acacia".format(HIPDIR=hipDir))
+    fbxImportFormat = fbxSubnet.getFbxFilesList("{HIPDIR}assets/myTrees/BostonFern".format(HIPDIR=hipDir))[0]
 
     # Import fbx
     for key in fbxImportFormat:
         subnetName = key
         fbxFilePaths = fbxImportFormat[key]
-        treeSubnet = importSpeedTreeFbx(fbxFilePaths, subnetName)
+        treeSubnet = fbxSubnet.importSpeedTreeFbx(fbxFilePaths, subnetName)
         treeSubnet, matnetName = fbxSubnetFormat.AssignMaterials(treeSubnet)
 
         fbxSubnetFormat.createMatnet(treeSubnet, matnetName)
