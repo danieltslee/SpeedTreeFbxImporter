@@ -17,8 +17,15 @@ def getFbxFilesList(rootDir):
             if file.endswith(".fbx"):
                 fbxFilePaths.append(os.path.join(root, file))
                 fbxFiles.append(file)
+    fbxFilePaths = [fbxFilePath.replace("\\", "/") for fbxFilePath in fbxFilePaths]
 
-    return fbxFilePaths, fbxFiles
+    # get fbxFileDirs
+    fbxFileDirs = []
+    for fbxFilePath in fbxFilePaths:
+        lastSlashIndex = fbxFilePath.rfind("/")
+        fbxFileDirs.append(fbxFilePath[0:lastSlashIndex])
+
+    return fbxFilePaths, fbxFileDirs, fbxFiles
 
 
 def importSpeedTreeFbx(fbxFilePathsList, treeName):
@@ -159,14 +166,35 @@ def exe():
     hipBaseName = hou.hipFile.basename()
     hipDir = hipPath.replace(hipBaseName, "")
 
-    fbxFilePaths, fbxFiles = getFbxFilesList("{HIPDIR}assets/myTrees/BostonFern".format(HIPDIR=hipDir))
+    fbxFilePaths, fbxFileDirs, fbxFiles = getFbxFilesList("{HIPDIR}assets/myTrees".format(HIPDIR=hipDir))
 
-    for i in range(len(fbxFiles)):
-        print(fbxFilePaths[i])
-        print(fbxFiles[i])
+    for fbxFilePath in fbxFilePaths:
+        print(fbxFilePath)
+    for fbxFileDir in fbxFileDirs:
+        print(fbxFileDir)
+    for fbxFile in fbxFiles:
+        print(fbxFile)
 
-    treeSubnet = importSpeedTreeFbx(fbxFilePaths, "BostonFern")
-    treeSubnet, matnetName = AssignMaterials(treeSubnet)
+    # Determine fbx file dir set
+    fbxSubnetKeys = []
+    for fbxFileDir in fbxFileDirs:
+        lastSlashIndex = fbxFileDir.rfind("/")
+        fbxSubnetKeys.append(fbxFileDir[lastSlashIndex+1:])
+
+    fbxImportFormat = {}
+    i = 0
+    for fbxSubnetKey in fbxSubnetKeys:
+        print(fbxSubnetKey)
+        if fbxSubnetKey in fbxImportFormat:
+            fbxImportFormat[fbxSubnetKey] = fbxImportFormat[fbxSubnetKey].append(fbxFilePaths[i])
+        else:
+            fbxImportFormat[fbxSubnetKey] = [fbxFilePaths[i]]
+        i += 1
+
+    print(fbxImportFormat)
+
+    #treeSubnet = importSpeedTreeFbx(fbxFilePaths, "BostonFern")
+    #treeSubnet, matnetName = AssignMaterials(treeSubnet)
 
     """
     createMatnet(treeSubnet, matnetName)
