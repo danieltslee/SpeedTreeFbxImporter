@@ -44,7 +44,7 @@ def getFbxFilesList(rootDir):
             fbxImportFormat[fbxSubnetKey] = [fbxFilePaths[i]]
         i += 1
 
-    return fbxImportFormat, fbxFilePaths
+    return fbxImportFormat, fbxFilePaths, fbxFileDirs
 
 
 def importSpeedTreeFbx(fbxFilePathsList, treeName):

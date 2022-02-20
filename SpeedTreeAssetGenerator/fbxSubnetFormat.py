@@ -3,7 +3,7 @@ API for building formatting tree subnet built from fbx Subnet
 """
 
 import hou
-from . import classNodeNetwork
+from . import classNodeNetwork as cnn
 from . import fbxSubnet
 from PIL import Image
 
@@ -63,8 +63,18 @@ foreach (string group; groups) {{
     return subnet, matnetName
 
 
-def materialDirectory():
-    pass
+def materialDirectory(treeSubnet):
+    # Query tree subnets
+    treeSubnetNet = cnn.MyNetwork(treeSubnet)
+    treeGeo = treeSubnetNet.findNodes("geo", method="type")
+
+    treeGeoNet = cnn.MyNetwork(treeGeo[0])
+    fileNode = treeGeoNet.findNodes("file", method="type")
+
+    # Get fbx file current directory
+    fileNodeFilePath = fileNode.parm("file")
+    lastSlashIndex = fileNodeFilePath.rfind("/")
+    fileNodeFilePath = fileNodeFilePath[0: lastSlashIndex]
 
 
 def createMatnet(treeSubnet, matnetName):
@@ -73,7 +83,7 @@ def createMatnet(treeSubnet, matnetName):
 
     # Query first tree geo node in subnet
     treeGeo = treeSubnet.children()[0]
-    treeGeoNet = classNodeNetwork.MyNetwork(treeGeo)
+    treeGeoNet = cnn.MyNetwork(treeGeo)
 
     # Get variables
     treeName = treeSubnet.name()
