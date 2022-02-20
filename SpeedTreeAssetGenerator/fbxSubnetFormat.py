@@ -70,13 +70,15 @@ def createMatnet(subnet, matnetName):
 
     # Create material networks based on existing group nodes
     groupNodes = treeGeoNet.findNodes("group", method="name")
-    groupNodeNames = [groupNode.name() for groupNode in groupNodes]
-    groupMaterials = [groupNodeName.replace("_group", "") for groupNodeName in groupNodeNames]
+    groupNameParms = [groupNode.parm("crname") for groupNode in groupNodes]
+    groupMaterials = [groupNameParm.eval().replace("_group", "") for groupNameParm in groupNameParms]
     print(groupMaterials)
-    """
+
+    # Initialize Redshift Material Builders
     for groupMaterial in groupMaterials:
         rsmb = treeMatnet.createNode("redshift_vopnet", groupMaterial)
         rsmbOut = rsmb.children()[0]
         shader = rsmb.children()[1]
-        shaderTexName = groupMaterial.replace("_Mat","")
-    """
+        shaderTexName = groupMaterial.replace("_Mat", "")
+
+
