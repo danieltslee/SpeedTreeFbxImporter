@@ -168,14 +168,8 @@ def exe():
 
     fbxFilePaths, fbxFileDirs, fbxFiles = getFbxFilesList("{HIPDIR}assets/myTrees".format(HIPDIR=hipDir))
 
-    for fbxFilePath in fbxFilePaths:
-        print(fbxFilePath)
-    for fbxFileDir in fbxFileDirs:
-        print(fbxFileDir)
-    for fbxFile in fbxFiles:
-        print(fbxFile)
-
-    # Determine fbx file dir set
+    # Create dictionary of to import fbx. Example: {"BostonFern":[path/to/geo1.fbx, path/to/geo2.fbx]}
+    # The key is the directory name in which the fbx is in. All fbx's in the same directory will be in the same subnet
     fbxSubnetKeys = []
     for fbxFileDir in fbxFileDirs:
         lastSlashIndex = fbxFileDir.rfind("/")
@@ -186,15 +180,20 @@ def exe():
     for fbxSubnetKey in fbxSubnetKeys:
         print(fbxSubnetKey)
         if fbxSubnetKey in fbxImportFormat:
-            fbxImportFormat[fbxSubnetKey] = fbxImportFormat[fbxSubnetKey].append(fbxFilePaths[i])
+            print("key found")
+            fbxImportFormat[fbxSubnetKey].append(fbxFilePaths[i])
         else:
+            print("key not found")
             fbxImportFormat[fbxSubnetKey] = [fbxFilePaths[i]]
         i += 1
 
     print(fbxImportFormat)
 
-    #treeSubnet = importSpeedTreeFbx(fbxFilePaths, "BostonFern")
-    #treeSubnet, matnetName = AssignMaterials(treeSubnet)
+    for key in fbxImportFormat:
+        subnetName = key
+        fbxFilePaths = fbxImportFormat[key]
+        treeSubnet = importSpeedTreeFbx(fbxFilePaths, subnetName)
+        treeSubnet, matnetName = AssignMaterials(treeSubnet)
 
     """
     createMatnet(treeSubnet, matnetName)
