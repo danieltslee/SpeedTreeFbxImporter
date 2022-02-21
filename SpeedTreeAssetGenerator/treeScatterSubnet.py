@@ -5,13 +5,26 @@ API for creating tree scatter subnet
 import hou
 from . import classNodeNetwork as cnn
 
+def findNodeInList(nodeList, nodeType):
+    """
+    Simple function to return the first node that matches the node type
+    :param nodeList: List of nodes
+    :param nodeType: String of the node type
+    :return: hou.node object
+    """
+    for node in nodeList:
+        if node.type().name() == nodeType:
+            break
+        else:
+            node = None
+    return node
 
 def createTreeScatterSubnet(treeSubnet, hfGeoNode):
     """ Create Subnet used for scattering in hf_scatter SOP"""
-    treeSubnet = cnn.MyNetwork(treeSubnet)
+    treeSubnetNet = cnn.MyNetwork(treeSubnet)
     hfGeoNodeNet = cnn.MyNetwork(hfGeoNode)
 
-    treeScatterSubnetName = treeSubnet.name + "_scatter"
+    treeScatterSubnetName = treeSubnetNet.name + "_scatter"
 
     # Create tree scatter subnet
     oldScatterSubnetList = hfGeoNodeNet.findNodes(treeScatterSubnetName, method="name")
@@ -20,6 +33,12 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
         # Store old position and name
         oldScatterSubnetPos = oldScatterSubnet.position()
         oldScatterSubnetName = oldScatterSubnet.name()
+        # Store wired merge node if exists
+        if oldScatterSubnet.outputs():
+            scattersMergeNode = oldScatterSubnet.outputs()[0]
+        else:
+            scattersMergeNode = None
+
         # Copy old scatter subnet and delete contents
         scatterSubnet = oldScatterSubnet.copyTo(oldScatterSubnet.parent())
         oldScatterSubnet.destroy()
@@ -27,6 +46,8 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
             child.destroy()
         scatterSubnet.setPosition(oldScatterSubnetPos)
         scatterSubnet.setName(oldScatterSubnetName)
+        # Action message
+        action = "Updated"
     else:
         # Create new tree scatter subnet
         scatterSubnet = hfGeoNode.createNode("subnet", treeScatterSubnetName)
@@ -36,38 +57,46 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
         weightTemplate = hou.FloatParmTemplate("weight", ("Weight"), 1, default_value=([1]), min=0, max=1)
         group.append(weightTemplate)
         scatterSubnet.setParmTemplateGroup(group)
+        # Action message
+        action = "Created"
+
     scatterSubnetNet = cnn.MyNetwork(scatterSubnet)
 
     # Create merge, xform, attribcreate, and output
-    nodePrefix1 = treeSubnet.name + "_"  # Can be string or None
+    nodePrefix1 = treeSubnetNet.name + "_"  # Can be string or None
     nodePrefix1 = str(nodePrefix1 or "")
     newNodesGroup1 = scatterSubnetNet.addNodes("merge", "xform", "attribcreate::2.0", "output", prefix=nodePrefix1)
-    mergeNode = [node for node in newNodesGroup1 if node.type().name() == "merge"][0]
-    attribCreateNode = [node for node in newNodesGroup1 if node.type().name() == "attribcreate::2.0"][0]
+    mergeNode = findNodeInList(newNodesGroup1, "merge")
+    attribCreateNode = findNodeInList(newNodesGroup1, "attribcreate::2.0")
     attribCreateNode.setParms({"name1": "weight", "class1": 1, "value1v1": 1})
+    outputNode =findNodeInList(newNodesGroup1, "output")
+    # Wires new nodes group 1 in the order of the list
     scatterSubnetNet.wireNodes(newNodesGroup1)
 
     # Create object_merge and matchsize
     i = 0
     newNodesGroup2 = []
-    for child in treeSubnet.children:
+    for child in treeSubnetNet.children:
         # Bypass material networks
         if child.type().name() == "matnet" or child.type().name() == "shopnet":
             continue
 
         nodePrefix2 = child.name() + "_"
         newNodesGroup2Temp = scatterSubnetNet.addNodes("object_merge", "matchsize", prefix=nodePrefix2)
+        # Store all new nodes to newNodesGroup2
         for newNodeGroup2Temp in newNodesGroup2Temp:
             newNodesGroup2.append(newNodeGroup2Temp)
-        objMergeNode = [node for node in newNodesGroup2Temp if node.type().name() == "object_merge"][0]
-        objMergeNode.setParms({"objpath1":"/obj/{TREESUBNETNAME}/{CHILDNAME}".format(TREESUBNETNAME=treeSubnet.name,
+
+        objMergeNode = findNodeInList(newNodesGroup2Temp, "object_merge")
+        objMergeNode.setParms({"objpath1":"/obj/{TREESUBNETNAME}/{CHILDNAME}".format(TREESUBNETNAME=treeSubnetNet.name,
                                                                                      CHILDNAME=child.name())})
-        matchsizeNode = [node for node in newNodesGroup2Temp if node.type().name() == "matchsize"][0]
+        matchsizeNode = findNodeInList(newNodesGroup2Temp, "matchsize")
         matchsizeNode.setParms({"justify_y":1})
         matchsizeNode.setParms({"doscale":1})
         matchsizeNode.setParms({"uniformscale": 1})
         matchsizeNode.setParms({"scale_axis": 0})
         mergeNode.setInput(i, matchsizeNode)
+        # Wires new nodes group 2 temp in the order of the list
         scatterSubnetNet.wireNodes(newNodesGroup2Temp)
         i += 1
 
@@ -79,5 +108,22 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
     attrWeightParm = attrWeightNode.parm("value1v1")
     attrWeightParm.setExpression("ch(\"../weight\")")
 
+    # Set flags
+    outputNode.setRenderFlag(True)
+    outputNode.setDisplayFlag(True)
+
     # Layout Children
     scatterSubnet.layoutChildren()
+
+    # Reware scatterSubnet
+    if scattersMergeNode:
+        inputIndex = scattersMergeNode.inputIndex(scatterSubnet)
+        print(scatterSubnet.name())
+        print(inputIndex)
+        scattersMergeNode.setInput(inputIndex, scatterSubnet)
+
+    # Action Message
+    actionMessage = "{ACTION} Scatter Subnet: {SCATTERSUBNETNAME}".format(ACTION=action,
+                                                                          SCATTERSUBNETNAME=treeScatterSubnetName)
+
+    return scatterSubnet, actionMessage

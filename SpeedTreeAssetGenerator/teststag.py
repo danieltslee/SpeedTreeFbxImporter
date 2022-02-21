@@ -51,7 +51,8 @@ def exe2():
     treeSubnet = hou.node("/obj/BostonFern")
     hfGeoNode = hou.node("/obj/hf_scatter_example")
 
-    treeScatterSubnet.createTreeScatterSubnet(treeSubnet, hfGeoNode)
+    scatterSubnet, actionMessage = treeScatterSubnet.createTreeScatterSubnet(treeSubnet, hfGeoNode)
+    print(actionMessage)
 
 if __name__ == "__main__":
     myFunc()
