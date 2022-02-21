@@ -6,16 +6,13 @@ import hou
 from . import fbxSubnet
 from . import fbxSubnetFormat
 from . import treeScatterSubnet
+from . import redshiftProxy
+from pathlib import Path
 
 
-def generateTreeSubnets():
-    # Get hip directory path
-    hipPath = hou.hipFile.path()
-    hipBaseName = hou.hipFile.basename()
-    hipDir = hipPath.replace(hipBaseName, "")
+def generateTreeSubnets(directory):
 
-    fbxImportFormat, fbxFilePaths, fbxFileDirs = \
-        fbxSubnet.getFbxFilesList("{HIPDIR}assets/myTrees/stagTest".format(HIPDIR=hipDir))
+    fbxImportFormat, fbxFilePaths, fbxFileDirs = fbxSubnet.getFbxFilesList(directory)
 
     # Import fbx
     generatedTreeSubnets = []
@@ -39,10 +36,12 @@ def generateTreeSubnets():
         obj = hou.node("/obj")
         obj.layoutChildren(tuple(generatedTreeSubnets), vertical_spacing=0.35)
 
+    return generatedTreeSubnets
+
 
 def generateScatterSubnets(treeSubnet, hfGeoNode):
     """
-    Generate tree scatter subnet
+    Generate tree scatter subnet in specified node/context
     :param treeSubnet: Tree subnet hou.node object from which the scatter subnet will be generated
     :param hfGeoNode: hou.node in which the scatter subnet will be placed
     :return: hou.node tree scatter subnet
@@ -51,3 +50,20 @@ def generateScatterSubnets(treeSubnet, hfGeoNode):
     print(actionMessage)
 
     return scatterSubnet
+
+
+def generateRedshiftProxy(treeSubnets, rsFolder):
+    """
+    Create Redshift proxy files for all geometry nodes in a specified tree subnet.
+    :param treeSubnet: tuple of hou.node tree subnets
+    :param rsFolder: file directory in which the rs proxy files will be generated
+    :return: None
+    """
+    # Format directory path
+    rsFolder = Path(rsFolder)
+    print(rsFolder)
+
+    for treeSubnet in treeSubnets:
+        redshiftProxy.createRedshiftProxy(treeSubnet, rsFolder)
+        print("Created Redshift Proxy files for {TREE}".format(TREE=treeSubnet.name()))
+
