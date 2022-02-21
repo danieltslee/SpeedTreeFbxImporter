@@ -90,13 +90,13 @@ def importSpeedTreeFbx(fbxFilePathsList, treeName):
         importedSubnet.destroy()
 
     collapsedSubnet = obj.collapseIntoSubnet(subnetGeos, treeName)
-    print("{ACTION} Tree Subnet: {TREENAME}".format(ACTION=action, TREENAME=treeName))
+    actionMessage = "{ACTION} Tree Subnet: {TREENAME}".format(ACTION=action, TREENAME=treeName)
     # Set subnet color
     subnetColor = hou.Color((.71, .518, .004))
     collapsedSubnet.setColor(subnetColor)
     # Layout children
     collapsedSubnet.layoutChildren(vertical_spacing=0.35)
 
-    return collapsedSubnet
+    return collapsedSubnet, actionMessage
 
 

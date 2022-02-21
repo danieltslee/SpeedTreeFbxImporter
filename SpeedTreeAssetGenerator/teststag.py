@@ -5,6 +5,7 @@ test python file
 import hou
 from . import fbxSubnet
 from . import fbxSubnetFormat
+from . import treeScatterSubnet
 
 def myFunc():
     print("I am scripting in houdini 18.5. try #6")
@@ -17,7 +18,7 @@ def myFunc():
     print("myFunc executed")
 
 
-def exe():
+def exe1():
     # Get hip directory path
     hipPath = hou.hipFile.path()
     hipBaseName = hou.hipFile.basename()
@@ -30,7 +31,8 @@ def exe():
     for key in fbxImportFormat:
         subnetName = key
         fbxFilePaths = fbxImportFormat[key]
-        treeSubnet = fbxSubnet.importSpeedTreeFbx(fbxFilePaths, subnetName)
+        treeSubnet, actionMessage = fbxSubnet.importSpeedTreeFbx(fbxFilePaths, subnetName)
+        print("\n{MSG}".format(MSG=actionMessage))
         # Create Matnet
         matnetName = subnetName + "_matnet"
         treeSubnet = fbxSubnetFormat.createMatnet(treeSubnet, matnetName)
@@ -38,13 +40,18 @@ def exe():
         # Create Material Assignments
         treeSubnet = fbxSubnetFormat.AssignMaterials(treeSubnet, matnetName)
         print("Created MaterialAssignments for: " + treeSubnet.name())
-        print("\n")
 
         generatedTreeSubnets.append(treeSubnet)
 
     # Layout tree subnets
     obj = hou.node("/obj")
     obj.layoutChildren(tuple(generatedTreeSubnets), vertical_spacing=0.35)
+
+def exe2():
+    treeSubnet = hou.node("/obj/BostonFern")
+    hfGeoNode = hou.node("/obj/hf_scatter_example")
+
+    treeScatterSubnet.createTreeScatterSubnet(treeSubnet, hfGeoNode)
 
 if __name__ == "__main__":
     myFunc()

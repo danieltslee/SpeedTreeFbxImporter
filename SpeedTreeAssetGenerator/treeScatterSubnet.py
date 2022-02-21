@@ -3,14 +3,12 @@ API for creating tree scatter subnet
 """
 
 import hou
-import os
 from . import classNodeNetwork as cnn
-from collections import defaultdict
 
 
-def createTreeScatterSubnet(subnet, hfGeoNode):
+def createTreeScatterSubnet(treeSubnet, hfGeoNode):
     """ Create Subnet used for scattering in hf_scatter SOP"""
-    treeSubnet = cnn.MyNetwork(subnet)
+    treeSubnet = cnn.MyNetwork(treeSubnet)
     hfGeoNodeNet = cnn.MyNetwork(hfGeoNode)
 
     treeScatterSubnetName = treeSubnet.name + "_scatter"
@@ -83,9 +81,3 @@ def createTreeScatterSubnet(subnet, hfGeoNode):
 
     # Layout Children
     scatterSubnet.layoutChildren()
-
-def exe():
-    subnet = hou.node("/obj/BostonFern")
-    hfGeoNode = hou.node("/obj/hf_scatter_example")
-
-    createTreeScatterSubnet(subnet, hfGeoNode)
