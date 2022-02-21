@@ -47,20 +47,30 @@ def getFbxFilesList(rootDir):
     return fbxImportFormat, fbxFilePaths, fbxFileDirs
 
 
-def importSpeedTreeFbx(fbxFilePathsList, treeName):
+def importSpeedTreeFbx(fbxFilePathsList, treeSubnetName):
     """ Imports all Speed Tree fbx files in a directory and collapses into a single subnet
     Returns subnet with cleaned geometry nodes """
 
     # Define obj context
     obj = hou.node("/obj")
 
-    # If subnet already exists, delete it
-    oldTreeSubnet = hou.node("/obj/{TREENAME}".format(TREENAME=treeName))
+    # Get current network box
+    currentNetworkBox = getNetworkBox(treeSubnetName)
+    print("Current Network Box: " + currentNetworkBox.comment())
+
+    # If tree subnet already exists, delete it
+    oldTreeSubnet = hou.node("/obj/{TREESUBNETNAME}".format(TREESUBNETNAME=treeSubnetName))
     if oldTreeSubnet:
+        oldTreeSubnetPos = oldTreeSubnet.position()
         action = "Updated"
         oldTreeSubnet.destroy()
     else:
         action = "Created"
+
+    # Get current network box
+    if not currentNetworkBox:
+        currentNetworkBox = obj.createNetworkBox()
+        currentNetworkBox.setComment("SpeedTree Assets New")
 
     # Import Fbx geo and collapse into subnet
     subnetGeos = []
@@ -89,14 +99,41 @@ def importSpeedTreeFbx(fbxFilePathsList, treeName):
 
         importedSubnet.destroy()
 
-    collapsedSubnet = obj.collapseIntoSubnet(subnetGeos, treeName)
-    actionMessage = "{ACTION} Tree Subnet: {TREENAME}".format(ACTION=action, TREENAME=treeName)
+    # Collapse geo nodes into subnet, name it treeName
+    collapsedSubnet = obj.collapseIntoSubnet(subnetGeos, treeSubnetName)
+    # Move to old position if exists
+    if oldTreeSubnet:
+        collapsedSubnet.setPosition(oldTreeSubnetPos)
+    # Put in network box
+    currentNetworkBox.addNode(collapsedSubnet)
+    # Layout children
+    collapsedSubnet.layoutChildren(vertical_spacing=0.35)
     # Set subnet color
     subnetColor = hou.Color((.71, .518, .004))
     collapsedSubnet.setColor(subnetColor)
-    # Layout children
-    collapsedSubnet.layoutChildren(vertical_spacing=0.35)
+
+    # Message
+    actionMessage = "{ACTION} Tree Subnet: {TREESUBNETNAME}".format(ACTION=action, TREESUBNETNAME=treeSubnetName)
 
     return collapsedSubnet, actionMessage
 
 
+def getNetworkBox(treeSubnetName):
+    """
+    Gets network box that contains the node with the given name in obj context.
+    :param treeName: Tree subnet name
+    :return: hou.NetworkBox that contains the tree subnet with the name
+    """
+    obj = hou.node("/obj")
+
+    # Find all network boxes in obj context
+    objNetworkBoxes = obj.networkBoxes()
+
+    # Find network box that the node is in
+    networkBox = None
+    for networkBox in objNetworkBoxes:
+        nodeNames = [node.name() for node in networkBox.nodes()]
+        if treeSubnetName in nodeNames:
+            break
+
+    return networkBox

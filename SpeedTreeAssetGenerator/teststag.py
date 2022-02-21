@@ -8,14 +8,13 @@ from . import fbxSubnetFormat
 from . import treeScatterSubnet
 
 def myFunc():
-    print("I am scripting in houdini 18.5. try #6")
-    #obj = hou.node("/obj")
-    #obj.createNode("geo", "myPycharmGeo")
+    obj = hou.node("/obj")
+    objNetworkBoxes = obj.networkBoxes()
 
-    list1 = range(5)
-    list2 = ["one", "two", "three", "four", "five"]
+    treeName = "BostonFern"
 
-    print("myFunc executed")
+    box = fbxSubnet.getNetworkBox(treeName)
+    print("My box is: " + box.comment())
 
 
 def exe1():
@@ -44,8 +43,8 @@ def exe1():
         generatedTreeSubnets.append(treeSubnet)
 
     # Layout tree subnets
-    obj = hou.node("/obj")
-    obj.layoutChildren(tuple(generatedTreeSubnets), vertical_spacing=0.35)
+    #obj = hou.node("/obj")
+    #obj.layoutChildren(tuple(generatedTreeSubnets), vertical_spacing=0.35)
 
 def exe2():
     treeSubnet = hou.node("/obj/BostonFern")
