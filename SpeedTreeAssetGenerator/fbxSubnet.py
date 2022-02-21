@@ -5,6 +5,8 @@ API for building tree fbx subnet given SpeedTree Fbx imports
 import hou
 import os
 from . import classNodeNetwork
+from . import helper
+
 
 def getFbxFilesList(rootDir):
     """
@@ -54,23 +56,18 @@ def importSpeedTreeFbx(fbxFilePathsList, treeSubnetName):
     # Define obj context
     obj = hou.node("/obj")
 
-    # Get current network box
-    currentNetworkBox = getNetworkBox(treeSubnetName)
-    print("Current Network Box: " + currentNetworkBox.comment())
-
     # If tree subnet already exists, delete it
     oldTreeSubnet = hou.node("/obj/{TREESUBNETNAME}".format(TREESUBNETNAME=treeSubnetName))
     if oldTreeSubnet:
+        # Get old subnet position
         oldTreeSubnetPos = oldTreeSubnet.position()
+        # Find network box that node is in
+        currentNetworkBox = helper.getNetworkBox(oldTreeSubnet, obj)
         action = "Updated"
         oldTreeSubnet.destroy()
     else:
+        currentNetworkBox = None
         action = "Created"
-
-    # Get current network box
-    if not currentNetworkBox:
-        currentNetworkBox = obj.createNetworkBox()
-        currentNetworkBox.setComment("SpeedTree Assets New")
 
     # Import Fbx geo and collapse into subnet
     subnetGeos = []
@@ -105,7 +102,8 @@ def importSpeedTreeFbx(fbxFilePathsList, treeSubnetName):
     if oldTreeSubnet:
         collapsedSubnet.setPosition(oldTreeSubnetPos)
     # Put in network box
-    currentNetworkBox.addNode(collapsedSubnet)
+    if currentNetworkBox:
+        currentNetworkBox.addNode(collapsedSubnet)
     # Layout children
     collapsedSubnet.layoutChildren(vertical_spacing=0.35)
     # Set subnet color
@@ -116,24 +114,3 @@ def importSpeedTreeFbx(fbxFilePathsList, treeSubnetName):
     actionMessage = "{ACTION} Tree Subnet: {TREESUBNETNAME}".format(ACTION=action, TREESUBNETNAME=treeSubnetName)
 
     return collapsedSubnet, actionMessage
-
-
-def getNetworkBox(treeSubnetName):
-    """
-    Gets network box that contains the node with the given name in obj context.
-    :param treeName: Tree subnet name
-    :return: hou.NetworkBox that contains the tree subnet with the name
-    """
-    obj = hou.node("/obj")
-
-    # Find all network boxes in obj context
-    objNetworkBoxes = obj.networkBoxes()
-
-    # Find network box that the node is in
-    networkBox = None
-    for networkBox in objNetworkBoxes:
-        nodeNames = [node.name() for node in networkBox.nodes()]
-        if treeSubnetName in nodeNames:
-            break
-
-    return networkBox

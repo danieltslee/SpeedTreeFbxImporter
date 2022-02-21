@@ -1,5 +1,5 @@
 """
-test python file
+Execution functions
 """
 
 import hou
@@ -7,17 +7,8 @@ from . import fbxSubnet
 from . import fbxSubnetFormat
 from . import treeScatterSubnet
 
-def myFunc():
-    obj = hou.node("/obj")
-    objNetworkBoxes = obj.networkBoxes()
 
-    treeName = "BostonFern"
-
-    box = fbxSubnet.getNetworkBox(treeName)
-    print(box.comment() if box else "No network box found")
-
-
-def exe1():
+def generateTreeSubnets():
     # Get hip directory path
     hipPath = hou.hipFile.path()
     hipBaseName = hou.hipFile.basename()
@@ -49,14 +40,14 @@ def exe1():
         obj.layoutChildren(tuple(generatedTreeSubnets), vertical_spacing=0.35)
 
 
-def exe2():
-    treeSubnet = hou.node("/obj/BostonFern")
-    hfGeoNode = hou.node("/obj/hf_scatter_example")
-
+def generateScatterSubnets(treeSubnet, hfGeoNode):
+    """
+    Generate tree scatter subnet
+    :param treeSubnet: Tree subnet hou.node object from which the scatter subnet will be generated
+    :param hfGeoNode: hou.node in which the scatter subnet will be placed
+    :return: hou.node tree scatter subnet
+    """
     scatterSubnet, actionMessage = treeScatterSubnet.createTreeScatterSubnet(treeSubnet, hfGeoNode)
     print(actionMessage)
 
-if __name__ == "__main__":
-    myFunc()
-
-
+    return scatterSubnet

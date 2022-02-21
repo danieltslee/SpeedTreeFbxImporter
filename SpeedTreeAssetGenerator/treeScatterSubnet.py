@@ -4,6 +4,7 @@ API for creating tree scatter subnet
 
 import hou
 from . import classNodeNetwork as cnn
+from . import helper
 
 def findNodeInList(nodeList, nodeType):
     """
@@ -41,6 +42,8 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
         else:
             scatterMergeNodes = ()
             scatterConnectionIndicies = []
+        # Find network box that the node is in
+        currentNetworkBox = helper.getNetworkBox(oldScatterSubnet, hfGeoNode)
 
         # Copy old scatter subnet and delete contents
         scatterSubnet = oldScatterSubnet.copyTo(oldScatterSubnet.parent())
@@ -49,6 +52,9 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
             child.destroy()
         scatterSubnet.setPosition(oldScatterSubnetPos)
         scatterSubnet.setName(oldScatterSubnetName)
+        # Put in network box
+        if currentNetworkBox:
+            currentNetworkBox.addNode(scatterSubnet)
 
         # Rewire scatterSubnet
         if scatterMergeNodes:
