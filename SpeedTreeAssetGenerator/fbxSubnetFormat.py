@@ -7,6 +7,7 @@ from . import classNodeNetwork as cnn
 from . import fbxSubnet
 from PIL import Image
 
+
 def AssignMaterials(treeSubnet, matnetName):
     """ Creates s@shop_materialpath attribute to existing primitive groups
     Returns formatted Tree Subnet """
@@ -104,6 +105,14 @@ def texturePathTemplate(matDir, materialName, extension, texType=""):
                                                        EXTENSION=extension)
 
 
+def deleteMatnet(treeSubnet):
+    """ Deletes matnet or shopnet in subnet """
+    for child in treeSubnet.children():
+        if child.type().name() == "matnet" or child.type().name() == "shopnet":
+            child.destroy()
+    return treeSubnet
+
+
 def createMatnet(treeSubnet, matnetName):
     """
     Creates matnet with materials assigned to each of the groups
@@ -111,6 +120,9 @@ def createMatnet(treeSubnet, matnetName):
     :param matnetName: Name of the matnet for the tree subnet
     :return: tree subnet with matnet
     """
+    # Delete old Matnet
+    treeSubnet = deleteMatnet(treeSubnet)
+
     # Create Matnet
     treeMatnet = treeSubnet.createNode("matnet", matnetName)
 

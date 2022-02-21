@@ -10,34 +10,45 @@ from . import redshiftProxy
 from pathlib import Path
 
 
-def generateTreeSubnets(directory):
+def treeSubnetsFromDir(directory):
 
     # Get fbx directory
-    fbxImportFormat, fbxFilePaths, fbxFileDirs = fbxSubnet.getFbxFilesList(directory)
+    fbxImportFormat, fbxFilePaths, fbxFileDirs = getFbxFilesList(directory)
 
-    # Import fbx
-    generatedTreeSubnets = []
+    treeSubnetsFromDir = []
     for key in fbxImportFormat:
+        # Import fbx
         subnetName = key
         fbxFilePaths = fbxImportFormat[key]
-        treeSubnet, actionMessage = fbxSubnet.importSpeedTreeFbx(subnetName, fbxFilePathsList=fbxFilePaths)
+        treeSubnet, actionMessage = importSpeedTreeFbx(subnetName, fbxFilePathsList=fbxFilePaths)
         print("\n{MSG}".format(MSG=actionMessage))
+
+        treeSubnetsFromDir.append(treeSubnet)
+
+    # Layout tree subnets
+    if actionMessage.split()[0] == "Created":
+        obj = hou.node("/obj")
+        obj.layoutChildren(tuple(treeSubnetsFromDir), vertical_spacing=0.35)
+
+    return treeSubnetsFromDir
+
+
+def treeSubnetsReformat(treeSubnetSelection):
+
+    treeSubnetsReformated = []
+    for treeSubnet in treeSubnetSelection:
+        # Format fbx
         # Create Matnet
-        matnetName = subnetName + "_matnet"
+        matnetName = treeSubnet.name() + "_matnet"
         treeSubnet = fbxSubnetFormat.createMatnet(treeSubnet, matnetName)
         print("Materials Created for: " + treeSubnet.name())
         # Create Material Assignments
         treeSubnet = fbxSubnetFormat.AssignMaterials(treeSubnet, matnetName)
         print("Created MaterialAssignments for: " + treeSubnet.name())
 
-        generatedTreeSubnets.append(treeSubnet)
+        treeSubnetsReformated.append(treeSubnet)
 
-    # Layout tree subnets
-    if actionMessage.split()[0] == "Created":
-        obj = hou.node("/obj")
-        obj.layoutChildren(tuple(generatedTreeSubnets), vertical_spacing=0.35)
-
-    return generatedTreeSubnets
+    return treeSubnetsReformated
 
 
 def generateScatterSubnets(treeSubnet, hfGeoNode):
