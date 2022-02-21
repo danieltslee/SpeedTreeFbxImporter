@@ -95,7 +95,7 @@ def importSpeedTreeFbx(fbxFilePathsList, treeName):
     subnetColor = hou.Color((.71, .518, .004))
     collapsedSubnet.setColor(subnetColor)
     # Layout children
-    collapsedSubnet.layoutChildren()
+    collapsedSubnet.layoutChildren(vertical_spacing=0.35)
 
     return collapsedSubnet
 

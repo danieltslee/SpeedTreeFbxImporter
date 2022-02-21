@@ -7,13 +7,16 @@ from . import classNodeNetwork as cnn
 from . import fbxSubnet
 from PIL import Image
 
-def AssignMaterials(subnet):
+def AssignMaterials(treeSubnet, matnetName):
     """ Creates s@shop_materialpath attribute to existing primitive groups
-    Returns formatted subnet and matnetName"""
-    treeSubnet = cnn.MyNetwork(subnet)
-    treeName = subnet.name()
+    Returns formatted Tree Subnet """
 
-    for treeGeo in treeSubnet.children:
+    for treeGeo in treeSubnet.children():
+        # Bypass matnets, only run on geo
+        if treeGeo.type().name() == "matnet" or treeGeo.type().name() == "shopnet":
+            continue
+
+        # Reset geo transformations
         treeGeo.parm("tx").revertToDefaults()
         treeGeo.parm("ty").revertToDefaults()
         treeGeo.parm("tz").revertToDefaults()
@@ -37,7 +40,6 @@ def AssignMaterials(subnet):
         assignWrangle = treeGeoNet.findNodes("type","attribwrangle")[0]
         assignWrangle.setName(newNodesPrefix+"_assign_materials")
         snippetParm = assignWrangle.parm("snippet")
-        matnetName = treeName + "_matnet"
         matnetPath = "../../{MATNETNAME}/".format(MATNETNAME=matnetName)
         assignSnippet = '''// Assign different materials for each primitive group
 string groups[] = detailintrinsic(0, "primitivegroups");
@@ -54,13 +56,12 @@ foreach (string group; groups) {{
         assignWrangle.setParms({"class": 1})
 
         # Layout children
-        treeGeo.layoutChildren(vertical_spacing=1)
+        treeGeo.layoutChildren(vertical_spacing=0.35)
         # Set display flag
         treeGeoNet.findLastNode().setDisplayFlag(True)
         treeGeoNet.findLastNode().setRenderFlag(True)
 
-        print("Created MaterialAssignments for " + treeGeoNet.name)
-    return subnet, matnetName
+    return treeSubnet
 
 
 def materialDirectory(treeSubnet):
@@ -108,7 +109,7 @@ def createMatnet(treeSubnet, matnetName):
     Creates matnet with materials assigned to each of the groups
     :param treeSubnet: Tree Subnet with imported Speed tree fbx geo nodes
     :param matnetName: Name of the matnet for the tree subnet
-    :return: None
+    :return: tree subnet with matnet
     """
     # Create Matnet
     treeMatnet = treeSubnet.createNode("matnet", matnetName)
@@ -182,5 +183,7 @@ def createMatnet(treeSubnet, matnetName):
     # Format tree matnet
     treeMatnet.layoutChildren(vertical_spacing=1)
 
-    print("Materials Created for " + treeSubnet.name())
+
+
+    return treeSubnet
 

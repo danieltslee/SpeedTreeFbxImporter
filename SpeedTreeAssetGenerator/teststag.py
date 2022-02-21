@@ -23,17 +23,28 @@ def exe():
     hipBaseName = hou.hipFile.basename()
     hipDir = hipPath.replace(hipBaseName, "")
 
-    fbxImportFormat = fbxSubnet.getFbxFilesList("{HIPDIR}assets/myTrees/BostonFern".format(HIPDIR=hipDir))[0]
+    fbxImportFormat = fbxSubnet.getFbxFilesList("{HIPDIR}assets/myTrees/stagTest".format(HIPDIR=hipDir))[0]
 
     # Import fbx
+    generatedTreeSubnets = []
     for key in fbxImportFormat:
         subnetName = key
         fbxFilePaths = fbxImportFormat[key]
         treeSubnet = fbxSubnet.importSpeedTreeFbx(fbxFilePaths, subnetName)
-        treeSubnet, matnetName = fbxSubnetFormat.AssignMaterials(treeSubnet)
+        # Create Matnet
+        matnetName = subnetName + "_matnet"
+        treeSubnet = fbxSubnetFormat.createMatnet(treeSubnet, matnetName)
+        print("Materials Created for: " + treeSubnet.name())
+        # Create Material Assignments
+        treeSubnet = fbxSubnetFormat.AssignMaterials(treeSubnet, matnetName)
+        print("Created MaterialAssignments for: " + treeSubnet.name())
+        print("\n")
 
-        fbxSubnetFormat.createMatnet(treeSubnet, matnetName)
+        generatedTreeSubnets.append(treeSubnet)
 
+    # Layout tree subnets
+    obj = hou.node("/obj")
+    obj.layoutChildren(tuple(generatedTreeSubnets), vertical_spacing=0.35)
 
 if __name__ == "__main__":
     myFunc()
