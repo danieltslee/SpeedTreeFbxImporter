@@ -35,9 +35,12 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
         oldScatterSubnetName = oldScatterSubnet.name()
         # Store wired merge node if exists
         if oldScatterSubnet.outputs():
-            scattersMergeNode = oldScatterSubnet.outputs()[0]
+            scatterMergeNodes = oldScatterSubnet.outputs()
+            scatterConnections = oldScatterSubnet.outputConnections()
+            scatterConnectionIndicies = [scatterConnection.inputIndex() for scatterConnection in scatterConnections]
         else:
-            scattersMergeNode = None
+            scatterMergeNodes = ()
+            scatterConnectionIndicies = []
 
         # Copy old scatter subnet and delete contents
         scatterSubnet = oldScatterSubnet.copyTo(oldScatterSubnet.parent())
@@ -46,6 +49,13 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
             child.destroy()
         scatterSubnet.setPosition(oldScatterSubnetPos)
         scatterSubnet.setName(oldScatterSubnetName)
+
+        # Rewire scatterSubnet
+        if scatterMergeNodes:
+            for i in range(len(scatterMergeNodes)):
+                inputIndex = scatterConnectionIndicies[i]
+                scatterMergeNodes[i].setInput(inputIndex, scatterSubnet)
+
         # Action message
         action = "Updated"
     else:
@@ -114,13 +124,6 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
 
     # Layout Children
     scatterSubnet.layoutChildren()
-
-    # Reware scatterSubnet
-    if scattersMergeNode:
-        inputIndex = scattersMergeNode.inputIndex(scatterSubnet)
-        print(scatterSubnet.name())
-        print(inputIndex)
-        scattersMergeNode.setInput(inputIndex, scatterSubnet)
 
     # Action Message
     actionMessage = "{ACTION} Scatter Subnet: {SCATTERSUBNETNAME}".format(ACTION=action,
