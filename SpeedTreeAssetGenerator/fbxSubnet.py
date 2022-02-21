@@ -49,7 +49,7 @@ def getFbxFilesList(rootDir):
     return fbxImportFormat, fbxFilePaths, fbxFileDirs
 
 
-def importSpeedTreeFbx(fbxFilePathsList, treeSubnetName):
+def importSpeedTreeFbx(treeSubnetName, fbxFilePathsList):
     """ Imports all Speed Tree fbx files in a directory and collapses into a single subnet
     Returns subnet with cleaned geometry nodes """
 

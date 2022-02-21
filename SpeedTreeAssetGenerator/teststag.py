@@ -35,6 +35,11 @@ def exe2():
 
     execute.generateScatterSubnets(treeSubnet, hfGeoNode)
 
+def exe3():
+    rsFolder = "Z:/Work/Houdini 1/environmentScene/assets/rsProxy"
+    treeSubnets = hou.selectedNodes()
+    execute.generateRedshiftProxy(treeSubnets, rsFolder)
+
 if __name__ == "__main__":
     myFunc()
 

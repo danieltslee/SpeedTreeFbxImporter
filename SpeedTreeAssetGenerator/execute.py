@@ -12,6 +12,7 @@ from pathlib import Path
 
 def generateTreeSubnets(directory):
 
+    # Get fbx directory
     fbxImportFormat, fbxFilePaths, fbxFileDirs = fbxSubnet.getFbxFilesList(directory)
 
     # Import fbx
@@ -19,7 +20,7 @@ def generateTreeSubnets(directory):
     for key in fbxImportFormat:
         subnetName = key
         fbxFilePaths = fbxImportFormat[key]
-        treeSubnet, actionMessage = fbxSubnet.importSpeedTreeFbx(fbxFilePaths, subnetName)
+        treeSubnet, actionMessage = fbxSubnet.importSpeedTreeFbx(subnetName, fbxFilePathsList=fbxFilePaths)
         print("\n{MSG}".format(MSG=actionMessage))
         # Create Matnet
         matnetName = subnetName + "_matnet"
