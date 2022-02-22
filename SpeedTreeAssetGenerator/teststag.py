@@ -15,6 +15,7 @@ def myFunc():
 
     generatedTreeSubnets = execute.treeSubnetsFromDir(directory)
 
+
 def exe1():
     # Get hip directory path
     hipPath = hou.hipFile.path()
@@ -49,5 +50,4 @@ def exe3():
 
 if __name__ == "__main__":
     myFunc()
-
 

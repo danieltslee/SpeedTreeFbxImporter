@@ -27,7 +27,7 @@ def treeSubnetsFromDir(directory):
         # Import fbx
         subnetName = key
         fbxFilePaths = fbxImportFormat[key]
-        treeSubnet, actionMessage = fbxSubnet.importSpeedTreeFbx(subnetName, fbxFilePathsList=fbxFilePaths)
+        treeSubnet, actionMessage = fbxSubnet.importSpeedTreeFbx(subnetName, fbxFilePaths)
         print("{MSG}".format(MSG=actionMessage))
 
         # Store Created Tree Subnets in list
