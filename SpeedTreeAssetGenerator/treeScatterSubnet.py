@@ -60,7 +60,7 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
         if scatterMergeNodes:
             for i in range(len(scatterMergeNodes)):
                 inputIndex = scatterConnectionIndicies[i]
-                scatterMergeNodes[i].setInput(inputIndex, scatterSubnet)
+                scatterMergeNodes[i].insertInput(inputIndex, scatterSubnet)
 
         # Action message
         action = "Updated"

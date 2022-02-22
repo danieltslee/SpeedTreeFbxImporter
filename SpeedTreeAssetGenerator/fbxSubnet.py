@@ -10,11 +10,12 @@ from . import helper
 
 def getFbxFilesList(rootDir):
     """
-    Returns dictionary of to import fbx. Example: {"BostonFern": [path/to/geo1.fbx, path/to/geo2.fbx]}
+    Returns dictionary of import fbx. Example: {"BostonFern": [path/to/geo1.fbx, path/to/geo2.fbx]}
     The key is the directory name in which the fbx is in. All fbx's in the same directory will be in the same subnet
+    :param rootDir: Folder which contains folders or subfolders containing the fbx files
+    :return: Formatted dictionary, fbx file paths, fbx file directories
     """
-
-    # Find fbx files in directory
+     # Find fbx files in directory
     fbxFilePaths = []
     fbxFiles = []
     for (root, dirs, files) in os.walk(rootDir):

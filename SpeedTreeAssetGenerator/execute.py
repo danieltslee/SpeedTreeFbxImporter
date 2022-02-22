@@ -11,32 +11,41 @@ from pathlib import Path
 
 
 def treeSubnetsFromDir(directory):
+    """
+    Creates subnets from directory. One subnet will be created for each folder containing fbxs
+    :param directory: Folder which contains folders or subfolders containing the fbx files
+    :return: List of hou.node tree subnet objects generated fron directory
+    """
+    obj = hou.node("/obj")
 
     # Get fbx directory
-    fbxImportFormat, fbxFilePaths, fbxFileDirs = getFbxFilesList(directory)
+    fbxImportFormat, fbxFilePaths, fbxFileDirs = fbxSubnet.getFbxFilesList(directory)
 
     treeSubnetsFromDir = []
+    createdTreeSubnets = []
     for key in fbxImportFormat:
         # Import fbx
         subnetName = key
         fbxFilePaths = fbxImportFormat[key]
-        treeSubnet, actionMessage = importSpeedTreeFbx(subnetName, fbxFilePathsList=fbxFilePaths)
-        print("\n{MSG}".format(MSG=actionMessage))
+        treeSubnet, actionMessage = fbxSubnet.importSpeedTreeFbx(subnetName, fbxFilePathsList=fbxFilePaths)
+        print("{MSG}".format(MSG=actionMessage))
+
+        # Store Created Tree Subnets in list
+        if actionMessage.split()[0] == "Created":
+            createdTreeSubnets.append(treeSubnet)
 
         treeSubnetsFromDir.append(treeSubnet)
 
-    # Layout tree subnets
-    if actionMessage.split()[0] == "Created":
-        obj = hou.node("/obj")
-        obj.layoutChildren(tuple(treeSubnetsFromDir), vertical_spacing=0.35)
+    # Layout created tree subnets
+    obj.layoutChildren(tuple(createdTreeSubnets), vertical_spacing=0.35)
 
     return treeSubnetsFromDir
 
 
-def treeSubnetsReformat(treeSubnetSelection):
+def treeSubnetsReformat(treeSubnetList):
 
-    treeSubnetsReformated = []
-    for treeSubnet in treeSubnetSelection:
+    treeSubnetsReformatted = []
+    for treeSubnet in treeSubnetList:
         # Format fbx
         # Create Matnet
         matnetName = treeSubnet.name() + "_matnet"
@@ -46,9 +55,11 @@ def treeSubnetsReformat(treeSubnetSelection):
         treeSubnet = fbxSubnetFormat.AssignMaterials(treeSubnet, matnetName)
         print("Created MaterialAssignments for: " + treeSubnet.name())
 
-        treeSubnetsReformated.append(treeSubnet)
+        treeSubnetsReformatted.append(treeSubnet)
+        treeSubnetNames = [treeSubnet.name() for treeSubnet in treeSubnetsReformatted]
+        print("Reformatted Trees: {TREESREFORMATTED}".format(TREESREFORMATTED=', '.join(treeSubnetNames)))
 
-    return treeSubnetsReformated
+    return treeSubnetsReformatted
 
 
 def generateScatterSubnets(treeSubnet, hfGeoNode):
@@ -58,6 +69,11 @@ def generateScatterSubnets(treeSubnet, hfGeoNode):
     :param hfGeoNode: hou.node in which the scatter subnet will be placed
     :return: hou.node tree scatter subnet
     """
+    # Get tree subnet in obj if selected the scatter subnet
+    if "_scatter" in treeSubnet.name():
+        treeSubnetName = treeSubnet.name().replace("_scatter", "")
+        treeSubnet = hou.node("/obj/{TREENAME}".format(TREENAME=treeSubnetName))
+
     scatterSubnet, actionMessage = treeScatterSubnet.createTreeScatterSubnet(treeSubnet, hfGeoNode)
     print(actionMessage)
 

@@ -7,14 +7,13 @@ from . import helper
 from . import execute
 
 def myFunc():
-    obj = hou.node("/obj")
-    objNetworkBoxes = obj.networkBoxes()
+    # Get hip directory path
+    hipPath = hou.hipFile.path()
+    hipBaseName = hou.hipFile.basename()
+    hipDir = hipPath.replace(hipBaseName, "")
+    directory = "{HIPDIR}assets/myTrees/stagTest".format(HIPDIR=hipDir)
 
-    treeName = "BostonFern"
-
-    box = helper.getNetworkBox(treeName)
-    print(box.comment() if box else "No network box found")
-
+    generatedTreeSubnets = execute.treeSubnetsFromDir(directory)
 
 def exe1():
     # Get hip directory path
@@ -23,22 +22,30 @@ def exe1():
     hipDir = hipPath.replace(hipBaseName, "")
     directory = "{HIPDIR}assets/myTrees/stagTest".format(HIPDIR=hipDir)
 
-    generatedTreeSubnets = execute.generateTreeSubnets(directory)
+    generatedTreeSubnets = execute.treeSubnetsFromDir(directory)
+
+    treeSubnetsReformatted = execute.treeSubnetsReformat(generatedTreeSubnets)
 
     generatedTreeSubnetNames = [generatedTreeSubnet.name() for generatedTreeSubnet in generatedTreeSubnets]
 
     print("\nTree Subnets {NAME} is generated in obj".format(NAME=generatedTreeSubnetNames))
 
+
 def exe2():
-    treeSubnet = hou.node("/obj/BostonFern")
+    """ Select tree subnets or scatter subnets """
+    treeSubnets = hou.selectedNodes()
     hfGeoNode = hou.node("/obj/hf_scatter_example")
 
-    execute.generateScatterSubnets(treeSubnet, hfGeoNode)
+    for treeSubnet in treeSubnets:
+        execute.generateScatterSubnets(treeSubnet, hfGeoNode)
+
 
 def exe3():
+    """ Select tree subnets """
     rsFolder = "Z:/Work/Houdini 1/environmentScene/assets/rsProxy"
     treeSubnets = hou.selectedNodes()
     execute.generateRedshiftProxy(treeSubnets, rsFolder)
+
 
 if __name__ == "__main__":
     myFunc()
