@@ -20,7 +20,6 @@ def treeSubnetsFromDir(directory):
 
     # Get fbx directory
     fbxImportFormat, fbxFilePaths, fbxFileDirs = fbxSubnet.getFbxFilesList(directory)
-
     treeSubnetsFromDir = []
     createdTreeSubnets = []
     for key in fbxImportFormat:
