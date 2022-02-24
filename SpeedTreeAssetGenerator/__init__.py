@@ -6,6 +6,7 @@ from . import redshiftProxy
 from . import helper
 from . import execute
 from . import teststag
+from . import launch
 
 
 import importlib
@@ -17,4 +18,4 @@ importlib.reload(redshiftProxy)
 importlib.reload(helper)
 importlib.reload(execute)
 importlib.reload(teststag)
-
+importlib.reload(launch)

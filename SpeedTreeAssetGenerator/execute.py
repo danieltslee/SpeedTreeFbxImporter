@@ -13,8 +13,8 @@ from pathlib import Path
 def treeSubnetsFromDir(directory):
     """
     Creates subnets from directory. One subnet will be created for each folder containing fbxs
-    :param directory: Folder which contains folders or subfolders containing the fbx files
-    :return: List of hou.node tree subnet objects generated fron directory
+    :param directory: Folder which contains fbxs or subfolders containing the fbx files
+    :return: List of hou.node tree subnet objects generated from directory
     """
     obj = hou.node("/obj")
 
@@ -87,6 +87,7 @@ def generateRedshiftProxy(treeSubnets, rsFolder):
     :param rsFolder: file directory in which the rs proxy files will be generated
     :return: None
     """
+    # TODO EACH TREE GETS OWN SUBDIRECTORY
     # Format directory path
     rsFolder = Path(rsFolder)
     print(rsFolder)

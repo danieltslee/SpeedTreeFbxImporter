@@ -15,6 +15,7 @@ def getNetworkBox(treeSubnet, parentNode):
     objNetworkBoxes = parentNode.networkBoxes()
 
     # Find network box that the node is in
+    foundNetworkBox = None
     for networkBox in objNetworkBoxes:
         nodeNames = [node.name() for node in networkBox.nodes(recurse=False)]
         if treeSubnet.name() in nodeNames:
@@ -23,7 +24,8 @@ def getNetworkBox(treeSubnet, parentNode):
         else:
             foundNetworkBox = 0
 
-    return networkBox if foundNetworkBox else None
+    if foundNetworkBox:
+        return networkBox
 
 
 def createNetworkBox(comment):
