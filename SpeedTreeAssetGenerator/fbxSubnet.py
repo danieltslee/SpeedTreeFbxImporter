@@ -110,6 +110,8 @@ def importSpeedTreeFbx(treeSubnetName, fbxFilePathsList):
     # Set subnet color
     subnetColor = hou.Color((.71, .518, .004))
     collapsedSubnet.setColor(subnetColor)
+    # collapsedSubnet set creator state
+    collapsedSubnet.setCreatorState("SpeedTree Asset Generator by Daniel")
 
     # Message
     actionMessage = "{ACTION} Tree Subnet: {TREESUBNETNAME}".format(ACTION=action, TREESUBNETNAME=treeSubnetName)

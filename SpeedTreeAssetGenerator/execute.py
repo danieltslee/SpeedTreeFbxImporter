@@ -29,14 +29,15 @@ def treeSubnetsFromDir(directory):
         treeSubnet, actionMessage = fbxSubnet.importSpeedTreeFbx(subnetName, fbxFilePaths)
         print("{MSG}".format(MSG=actionMessage))
 
-        # Store Created Tree Subnets in list
+        # If created, store in list
         if actionMessage.split()[0] == "Created":
             createdTreeSubnets.append(treeSubnet)
 
         treeSubnetsFromDir.append(treeSubnet)
 
     # Layout created tree subnets
-    obj.layoutChildren(tuple(createdTreeSubnets), vertical_spacing=0.35)
+    if createdTreeSubnets:
+        obj.layoutChildren(tuple(createdTreeSubnets), vertical_spacing=0.35)
 
     return treeSubnetsFromDir
 
@@ -61,22 +62,38 @@ def treeSubnetsReformat(treeSubnetList):
     return treeSubnetsReformatted
 
 
-def generateScatterSubnets(treeSubnet, hfGeoNode):
+def generateScatterSubnets(treeSubnets, hfGeoNode):
     """
     Generate tree scatter subnet in specified node/context
-    :param treeSubnet: Tree subnet hou.node object from which the scatter subnet will be generated
+    :param treeSubnets: Tree subnet hou.node object from which the scatter subnet will be generated
     :param hfGeoNode: hou.node in which the scatter subnet will be placed
-    :return: hou.node tree scatter subnet
+    :return: List of hou.node tree scatter subnets
     """
+    treeSubnets = list(treeSubnets)
     # Get tree subnet in obj if selected the scatter subnet
-    if "_scatter" in treeSubnet.name():
-        treeSubnetName = treeSubnet.name().replace("_scatter", "")
-        treeSubnet = hou.node("/obj/{TREENAME}".format(TREENAME=treeSubnetName))
+    i = 0
+    for treeSubnet in treeSubnets:
+        if "_scatter" in treeSubnet.name():
+            treeSubnets[i] = hou.node("/obj/{TREENAME}".format(TREENAME=treeSubnet.name().replace("_scatter", "")))
+        i += 1
 
-    scatterSubnet, actionMessage = treeScatterSubnet.createTreeScatterSubnet(treeSubnet, hfGeoNode)
-    print(actionMessage)
+    # Generate scatter subnet for each item in treeSubnets
+    allScatterSubnets = []
+    createdScatterSubnets = []
+    for treeSubnet in treeSubnets:
+        scatterSubnet, actionMessage = treeScatterSubnet.createTreeScatterSubnet(treeSubnet, hfGeoNode)
+        allScatterSubnets.append(scatterSubnet)
+        print(actionMessage)
 
-    return scatterSubnet
+        # If created, store in list
+        if actionMessage.split()[0] == "Created":
+            createdScatterSubnets.append(scatterSubnet)
+
+    # Layout created tree subnets
+    if createdScatterSubnets:
+        hfGeoNode.layoutChildren(tuple(createdScatterSubnets), vertical_spacing=0.35)
+
+    return allScatterSubnets
 
 
 def generateRedshiftProxy(treeSubnets, rsFolder):
@@ -94,4 +111,5 @@ def generateRedshiftProxy(treeSubnets, rsFolder):
     for treeSubnet in treeSubnets:
         redshiftProxy.createRedshiftProxy(treeSubnet, rsFolder)
         print("Created Redshift Proxy files for {TREE}".format(TREE=treeSubnet.name()))
+
 

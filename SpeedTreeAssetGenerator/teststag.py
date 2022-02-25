@@ -37,8 +37,7 @@ def exe2():
     treeSubnets = hou.selectedNodes()
     hfGeoNode = hou.node("/obj/hf_scatter_example")
 
-    for treeSubnet in treeSubnets:
-        execute.generateScatterSubnets(treeSubnet, hfGeoNode)
+    execute.generateScatterSubnets(treeSubnets, hfGeoNode)
 
 
 def exe3():

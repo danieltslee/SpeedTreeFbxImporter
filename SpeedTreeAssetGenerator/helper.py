@@ -41,3 +41,16 @@ def createNetworkBox(comment):
 
     return newNetworkBox
 
+
+def hideParms(nodeToHideParms, parmNamesList):
+
+    parms = nodeToHideParms.parmTemplateGroup()
+    for parmName in parmNamesList:
+        p = parms.find(parmName)
+        p.hide(True)
+        parms.replace(parmName, p)
+    nodeToHideParms.setParmTemplateGroup(parms)
+
+    return nodeToHideParms
+
+

@@ -52,6 +52,8 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
             child.destroy()
         scatterSubnet.setPosition(oldScatterSubnetPos)
         scatterSubnet.setName(oldScatterSubnetName)
+        # Hide default parameters
+        scatterSubnet = helper.hideParms(scatterSubnet, ["label1", "label2", "label3", "label4"])
         # Put in network box
         if currentNetworkBox:
             currentNetworkBox.addNode(scatterSubnet)
@@ -67,7 +69,12 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
     else:
         # Create new tree scatter subnet
         scatterSubnet = hfGeoNode.createNode("subnet", treeScatterSubnetName)
+        # Hide default parameters
+        scatterSubnet = helper.hideParms(scatterSubnet, ["label1", "label2", "label3", "label4"])
+        # Create new parameters
         group = scatterSubnet.parmTemplateGroup()
+        labelTemplate = hou.LabelParmTemplate("treeScatterSubnet", "Tree Scatter Subnet")
+        group.append(labelTemplate)
         treeScaleTemplate = hou.FloatParmTemplate("treeScale", ("Tree Scale"), 1, default_value=([1]), min=0, max=6)
         group.append(treeScaleTemplate)
         weightTemplate = hou.FloatParmTemplate("weight", ("Weight"), 1, default_value=([1]), min=0, max=1)
@@ -75,6 +82,9 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
         scatterSubnet.setParmTemplateGroup(group)
         # Action message
         action = "Created"
+
+    # ScatterSubnet set creator state
+    scatterSubnet.setCreatorState("SpeedTree Asset Generator by Daniel")
 
     scatterSubnetNet = cnn.MyNetwork(scatterSubnet)
 
