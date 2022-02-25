@@ -12,6 +12,19 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         self.layout.addWidget(self.ui)
         self.setParent(hou.ui.mainQtWindow(), QtCore.Qt.Window)
 
+
+class scatterAssetGenerator(QtWidgets.QWidget):
+
+    def __init__(self):
+        super(scatterAssetGenerator, self).__init__()
+        ui_file = 'Z:\houdini19.0\python3.7libs\SpeedTreeAssetGenerator\scatterAssetGeneratorUI.ui'
+        self.ui = QtUiTools.QUiLoader().load(ui_file)
+        self.layout = QtWidgets.QVBoxLayout(self)
+        self.layout.addWidget(self.ui)
+        self.setParent(hou.ui.mainQtWindow(), QtCore.Qt.Window)
+
+
+
 """
 PUT THIS IN A SHELF BUTTON IN HOUDINI
 import SpeedTreeAssetGenerator as stag
