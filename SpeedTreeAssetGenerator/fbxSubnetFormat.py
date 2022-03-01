@@ -8,7 +8,7 @@ from . import fbxSubnet
 from PIL import Image
 
 
-def AssignMaterials(treeSubnet, matnetName):
+def AssignMaterials(treeSubnet, matnetName, resetTransforms=True, matchSize=True):
     """ Creates s@shop_materialpath attribute to existing primitive groups
     Returns formatted Tree Subnet """
 
@@ -18,13 +18,13 @@ def AssignMaterials(treeSubnet, matnetName):
             continue
 
         # Reset geo transformations
-        treeGeo.parm("tx").revertToDefaults()
-        treeGeo.parm("ty").revertToDefaults()
-        treeGeo.parm("tz").revertToDefaults()
-        treeGeoNet = cnn.MyNetwork(treeGeo)
+        if resetTransforms:
+            treeGeo.parm("tx").revertToDefaults()
+            treeGeo.parm("ty").revertToDefaults()
+            treeGeo.parm("tz").revertToDefaults()
 
-        # Prefix of new nodes
-        newNodesPrefix = "myTree"
+        # Define treeGeo network
+        treeGeoNet = cnn.MyNetwork(treeGeo)
 
         # Clean old sops if any
         treeGeoNet.cleanNetwork("material", "pack", "output", method="type")
@@ -32,14 +32,27 @@ def AssignMaterials(treeSubnet, matnetName):
         #fileNode = treeGeoNet.findNodes("type", "file")[0]
         lastSop = treeGeoNet.findLastNode()
 
-        # Add nodes and wire
-
-        newNodes = treeGeoNet.addNodes("attribwrangle", "pack", "output", prefix=newNodesPrefix)
+        # Add nodes
+        addedNodes = ["attribwrangle", "pack", "output"]
+        if matchSize:
+            addedNodes = ["attribwrangle", "matchsize", "pack", "output"]
+        # Prefix of new nodes
+        newNodesPrefix = treeSubnet.name() + "_"
+        newNodes = treeGeoNet.addNodes(*addedNodes, prefix=newNodesPrefix)
+        # Wire nodes
         treeGeoNet.wireNodes(newNodes, lastSop)
 
+        # Set matchsize parms if exists
+        if matchSize:
+            matchsizeNode = treeGeoNet.findNodes("type", "matchsize")[0]
+            matchsizeNode.setParms({"justify_y": 1})
+            matchsizeNode.setParms({"doscale": 1})
+            matchsizeNode.setParms({"uniformscale": 1})
+            matchsizeNode.setParms({"scale_axis": 0})
+
         # Add vex snippet to attribute wrangle. Create s@shop_materialpath to primitives
-        assignWrangle = treeGeoNet.findNodes("type","attribwrangle")[0]
-        assignWrangle.setName(newNodesPrefix+"_assign_materials")
+        assignWrangle = treeGeoNet.findNodes("type", "attribwrangle")[0]
+        assignWrangle.setName(newNodesPrefix+"assign_materials")
         snippetParm = assignWrangle.parm("snippet")
         matnetPath = "../../{MATNETNAME}/".format(MATNETNAME=matnetName)
         assignSnippet = '''// Assign different materials for each primitive group

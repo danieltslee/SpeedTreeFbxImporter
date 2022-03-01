@@ -50,7 +50,7 @@ def getFbxFilesList(rootDir):
     return fbxImportFormat, fbxFilePaths, fbxFileDirs
 
 
-def importSpeedTreeFbx(treeSubnetName, fbxFilePathsList):
+def importSpeedTreeFbx(treeSubnetName, fbxFilePathsList, convertToYup=False):
     """ Imports all Speed Tree fbx files in a directory and collapses into a single subnet
     Returns subnet with cleaned geometry nodes """
 
@@ -73,20 +73,21 @@ def importSpeedTreeFbx(treeSubnetName, fbxFilePathsList):
     # Import Fbx geo and collapse into subnet
     subnetGeos = []
     for fbxFile in fbxFilePathsList:
-        importedSubnet, importMsgs = hou.hipFile.importFBX(fbxFile, import_cameras=False,
-                                                   import_joints_and_skin=False,
-                                                   import_lights=False,
-                                                   import_animation=False,
-                                                   import_materials=True,
-                                                   import_geometry=True,
-                                                   hide_joints_attached_to_skin=True,
-                                                   convert_joints_to_zyx_rotation_order=False,
-                                                   material_mode=hou.fbxMaterialMode.VopNetworks,
-                                                   compatibility_mode=hou.fbxCompatibilityMode.Maya,
-                                                   unlock_geometry=True,
-                                                   import_nulls_as_subnets=True,
-                                                   import_into_object_subnet=True,
-                                                   create_sibling_bones=False)
+        importedSubnet, importMsgs = hou.hipFile.importFBX(fbxFile,
+                                                           import_cameras=False,
+                                                           import_joints_and_skin=False,
+                                                           import_lights=False,
+                                                           import_animation=False,
+                                                           import_materials=True,
+                                                           import_geometry=True,
+                                                           hide_joints_attached_to_skin=True,
+                                                           convert_joints_to_zyx_rotation_order=convertToYup,
+                                                           material_mode=hou.fbxMaterialMode.VopNetworks,
+                                                           compatibility_mode=hou.fbxCompatibilityMode.Maya,
+                                                           unlock_geometry=True,
+                                                           import_nulls_as_subnets=True,
+                                                           import_into_object_subnet=True,
+                                                           create_sibling_bones=False)
 
         mySubnet = classNodeNetwork.MyNetwork(importedSubnet)
         mySubnet.cleanNetwork("shopnet", method="type")

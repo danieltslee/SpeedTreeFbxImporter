@@ -29,22 +29,23 @@ def exe1():
 
     generatedTreeSubnetNames = [generatedTreeSubnet.name() for generatedTreeSubnet in generatedTreeSubnets]
 
-    print("\nTree Subnets {NAME} is generated in obj".format(NAME=generatedTreeSubnetNames))
+    print("\nTree Subnets {NAME} are generated in obj".format(NAME=generatedTreeSubnetNames))
 
 
 def exe2():
     """ Select tree subnets or scatter subnets """
     treeSubnets = hou.selectedNodes()
-    hfGeoNode = hou.node("/obj/hf_scatter_example")
+    pathEntered = "/obj/hf_scatter_example"
+    hfGeoNode = hou.node(pathEntered)
 
-    execute.generateScatterSubnets(treeSubnets, hfGeoNode)
+    execute.generateScatterSubnets(treeSubnets, pathEntered, createGeoNode=True)
 
 
 def exe3():
     """ Select tree subnets """
     rsFolder = "Z:/Work/Houdini 1/environmentScene/assets/rsProxy"
     treeSubnets = hou.selectedNodes()
-    execute.generateRedshiftProxy(treeSubnets, rsFolder)
+    execute.generateRedshiftProxy(treeSubnets, rsFolder, createSubdir=True)
 
 
 if __name__ == "__main__":
