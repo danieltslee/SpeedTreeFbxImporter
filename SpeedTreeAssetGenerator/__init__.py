@@ -6,7 +6,8 @@ from . import redshiftProxy
 from . import helper
 from . import execute
 from . import teststag
-from . import launch
+from . import scatterAssetGeneratorController
+from . import speedTreeImportFbxController
 
 
 import importlib
@@ -18,4 +19,5 @@ importlib.reload(redshiftProxy)
 importlib.reload(helper)
 importlib.reload(execute)
 importlib.reload(teststag)
-importlib.reload(launch)
+importlib.reload(scatterAssetGeneratorController)
+importlib.reload(speedTreeImportFbxController)

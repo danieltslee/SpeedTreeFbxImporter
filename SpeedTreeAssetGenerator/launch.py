@@ -17,7 +17,7 @@ class scatterAssetGenerator(QtWidgets.QWidget):
 
     def __init__(self):
         super(scatterAssetGenerator, self).__init__()
-        ui_file = 'Z:\houdini19.0\python3.7libs\SpeedTreeAssetGenerator\scatterAssetGeneratorUI.ui'
+        ui_file = 'Z:\houdini19.0\python3.7libs\SpeedTreeAssetGenerator\scatterAssetGeneratorUI_v02.ui'
         self.ui = QtUiTools.QUiLoader().load(ui_file)
         self.layout = QtWidgets.QVBoxLayout(self)
         self.layout.addWidget(self.ui)

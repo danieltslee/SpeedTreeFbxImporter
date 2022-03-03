@@ -20,7 +20,7 @@ def findNodeInList(nodeList, nodeType):
             node = None
     return node
 
-def createTreeScatterSubnet(treeSubnet, hfGeoNode):
+def createTreeScatterSubnet(treeSubnet, hfGeoNode, matchsize=True):
     """ Create Subnet used for scattering in hf_scatter SOP"""
     treeSubnetNet = cnn.MyNetwork(treeSubnet)
     hfGeoNodeNet = cnn.MyNetwork(hfGeoNode)
@@ -101,7 +101,6 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
 
     # Create object_merge and matchsize
     i = 0
-    newNodesGroup2 = []
     for child in treeSubnetNet.children:
         # Bypass material networks
         if child.type().name() == "matnet" or child.type().name() == "shopnet":
@@ -109,19 +108,25 @@ def createTreeScatterSubnet(treeSubnet, hfGeoNode):
 
         nodePrefix2 = child.name() + "_"
         newNodesGroup2Temp = scatterSubnetNet.addNodes("object_merge", "matchsize", prefix=nodePrefix2)
-        # Store all new nodes to newNodesGroup2
-        for newNodeGroup2Temp in newNodesGroup2Temp:
-            newNodesGroup2.append(newNodeGroup2Temp)
+        # Wires new nodes group 2 temp in the order of the list
+        scatterSubnetNet.wireNodes(newNodesGroup2Temp)
 
+        # Object merge node
         objMergeNode = findNodeInList(newNodesGroup2Temp, "object_merge")
-        objMergeNode.setParms({"objpath1":"/obj/{TREESUBNETNAME}/{CHILDNAME}".format(TREESUBNETNAME=treeSubnetNet.name,
-                                                                                     CHILDNAME=child.name())})
+        objMergeNode.setParms({"objpath1": "/obj/{TREESUBNETNAME}/{CHILDNAME}".format(TREESUBNETNAME=treeSubnetNet.name,
+                                                                                      CHILDNAME=child.name())})
+        # Match size node
         matchsizeNode = findNodeInList(newNodesGroup2Temp, "matchsize")
-        matchsizeNode.setParms({"justify_y":1})
-        matchsizeNode.setParms({"doscale":1})
-        matchsizeNode.setParms({"uniformscale": 1})
-        matchsizeNode.setParms({"scale_axis": 0})
         mergeNode.setInput(i, matchsizeNode)
+        if matchsize:
+            matchsizeNode.setParms({"justify_y": 1})
+            matchsizeNode.setParms({"doscale": 1})
+            matchsizeNode.setParms({"uniformscale": 1})
+            matchsizeNode.setParms({"scale_axis": 0})
+        else:
+            newNodesGroup2Temp.remove(matchsizeNode)
+            matchsizeNode.destroy()
+
         # Wires new nodes group 2 temp in the order of the list
         scatterSubnetNet.wireNodes(newNodesGroup2Temp)
         i += 1

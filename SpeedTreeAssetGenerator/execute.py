@@ -28,18 +28,21 @@ def treeSubnetsFromDir(directory, onlyImportSelected=False,
     # Only Import selected TODO THIS NEEDS INPUT FROM UI
     if onlyImportSelected:
         selectedFolders = []  # THESE ARE THE SELECTED FOLDERS TO IMPORT
-        treeDicttoImport = {selectedFolder: fbxImportFormat[selectedFolder] for selectedFolder in selectedFolders}
+        treeDicttoImport = dict()
+        for selectedFolder in selectedFolders:
+            treeDicttoImport[selectedFolder] = fbxImportFormat[selectedFolder]
 
-    # Only reimport existing TODO THIS NEEDS INPUT FROM UI
+    # Only reimport existing
     if not reimportExisting:
         # Get all created subnets in obj
-        existingTreeSubnets = []
+        existingTreeSubnetNames = []
         for child in obj.children():
             if child.creatorState() == "SpeedTree Asset Generator by Daniel":
-                existingTreeSubnets.append(child)
-        # Update to not include existing tree subnets
-        # TODO CODE HERE
-
+                existingTreeSubnetNames.append(child.name())
+        # Delete existing tree subnet name from dictionary to import
+        for existingTreeSubnetName in existingTreeSubnetNames:
+            if existingTreeSubnetName in treeDicttoImport:
+                del treeDicttoImport[existingTreeSubnetName]
 
     treeSubnetsFromDir = []
     createdTreeSubnets = []
