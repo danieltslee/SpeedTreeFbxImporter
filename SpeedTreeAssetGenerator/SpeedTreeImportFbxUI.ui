@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>483</width>
-    <height>580</height>
+    <width>501</width>
+    <height>536</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -65,6 +65,13 @@
     </widget>
    </item>
    <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Trees in Directory</string>
@@ -73,11 +80,26 @@
       <item>
        <widget class="QTableWidget" name="tableOfFoldersOnDisk">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;table of trees tooltip&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Table lists all folders and subfolders that contains .fbx files.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Tree Name&lt;/span&gt; corresponds to the folder containing the fbxs.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Fbxs Found&lt;/span&gt; corresponds to all .fbx files found in the corresponding folder.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="verticalScrollBarPolicy">
          <enum>Qt::ScrollBarAlwaysOn</enum>
         </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+        </property>
+        <property name="gridStyle">
+         <enum>Qt::SolidLine</enum>
+        </property>
+        <attribute name="horizontalHeaderMinimumSectionSize">
+         <number>100</number>
+        </attribute>
+        <attribute name="verticalHeaderMinimumSectionSize">
+         <number>15</number>
+        </attribute>
+        <attribute name="verticalHeaderDefaultSectionSize">
+         <number>25</number>
+        </attribute>
         <column>
          <property name="text">
           <string>Tree Name</string>
@@ -86,6 +108,11 @@
         <column>
          <property name="text">
           <string>Fbxs Found</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Message</string>
          </property>
         </column>
        </widget>
@@ -101,32 +128,53 @@
     </widget>
    </item>
    <item>
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
       <string>Tree Subnets in Scene</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QListWidget" name="listOfTreeSubnets">
+       <widget class="QTableWidget" name="tableOfTreeSubnets">
         <property name="verticalScrollBarPolicy">
          <enum>Qt::ScrollBarAlwaysOn</enum>
         </property>
         <property name="sizeAdjustPolicy">
          <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
         </property>
-        <property name="selectionMode">
-         <enum>QAbstractItemView::MultiSelection</enum>
+        <property name="verticalScrollMode">
+         <enum>QAbstractItemView::ScrollPerPixel</enum>
         </property>
-        <item>
+        <attribute name="horizontalHeaderMinimumSectionSize">
+         <number>100</number>
+        </attribute>
+        <attribute name="verticalHeaderMinimumSectionSize">
+         <number>15</number>
+        </attribute>
+        <attribute name="verticalHeaderDefaultSectionSize">
+         <number>25</number>
+        </attribute>
+        <column>
          <property name="text">
-          <string>BananaPlant</string>
+          <string>Tree Subnets</string>
          </property>
-        </item>
-        <item>
+        </column>
+        <column>
          <property name="text">
-          <string>BostonFern</string>
+          <string>Fbxs in Subnet</string>
          </property>
-        </item>
+        </column>
+        <column>
+         <property name="text">
+          <string>Message</string>
+         </property>
+        </column>
        </widget>
       </item>
       <item>
