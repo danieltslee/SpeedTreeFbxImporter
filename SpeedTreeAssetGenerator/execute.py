@@ -10,7 +10,7 @@ from . import redshiftProxy
 from pathlib import Path
 
 
-def treeSubnetsFromDir(directory, onlyImportSelected=False,
+def treeSubnetsFromDir(fbxImportFormat, onlyImportSelected=[],
                        reimportExisting=True,
                        convertToYup=False):
     """
@@ -20,17 +20,17 @@ def treeSubnetsFromDir(directory, onlyImportSelected=False,
     """
     obj = hou.node("/obj")
 
-    # Get fbx directory
-    fbxImportFormat, fbxFilePaths, fbxFileDirs = fbxSubnet.getFbxFilesList(directory)
+    """# Get fbx directory
+    fbxImportFormat, fbxFilePaths, fbxFileDirs = fbxSubnet.getFbxFilesList(directory)"""
 
     # Dictionary to Import
     treeDicttoImport = fbxImportFormat
-    # Only Import selected TODO THIS NEEDS INPUT FROM UI
+    """# Only Import selected is tree names (keys)
     if onlyImportSelected:
-        selectedFolders = []  # THESE ARE THE SELECTED FOLDERS TO IMPORT
+        selectedItems = []  # THESE ARE THE SELECTED FOLDERS TO IMPORT
         treeDicttoImport = dict()
-        for selectedFolder in selectedFolders:
-            treeDicttoImport[selectedFolder] = fbxImportFormat[selectedFolder]
+        for selectedItem in selectedItems:
+            treeDicttoImport[selectedItem] = fbxImportFormat[selectedItem]"""
 
     # Only reimport existing
     if not reimportExisting:
