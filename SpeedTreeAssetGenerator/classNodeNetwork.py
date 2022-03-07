@@ -51,8 +51,8 @@ class MyNetwork:
             childNode.destroy()
 
     def addNodes(self, *nodeTypes, **kwargs):
-        """ Creates new nodes in network of type [nodeTypes] in the order of the list. Node name has optional prefix.
-         Returns dict of {type, name}"""
+        """ Creates new nodes in network of type [nodeTypes] in the order of the list.
+        Node name has optional prefix. Returns list of hou.node objs """
         prefix = kwargs.get("prefix", None)
         newNodes = []
         for nodeType in nodeTypes:

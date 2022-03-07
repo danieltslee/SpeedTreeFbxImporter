@@ -322,8 +322,16 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
 
                 currentRow += 1
 
+        # TODO DETECT MATERIAL NOT FORMATTED CORRECTLY. ADD MESSAGE
         # Check if formatted correctly
-
+        for treeKey, valueList in tableOfTreeSubnetsContents.items():
+            treeSubnet = hou.node("/obj/{TREEKEY}".format(TREEKEY=treeKey))
+            for child in treeSubnet:
+                matnet = child if child.type().name() == "matnet" else None
+            if matnet.name() != "{TREEKEY}_matnet".format(TREEKEY=treeKey) or not matnet:
+                treeKeyMessage = "Matnet. Consider reimporting."
+            else:
+                treeKeyMessage = None
 
         # Column width
         self.formatColumnWidth(self.ui.tableOfTreeSubnets)
@@ -332,6 +340,23 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         """ Streches 3rd column in table """
         header = uiTable.horizontalHeader()
         header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
+
+    def noBox(self):
+        dialog = QtWidgets.QMessageBox()
+        dialog.setIcon(QtWidgets.QMessageBox.Information)
+
+        dialog.setWindowTitle("Error")
+        dialog.setText("message")
+
+        dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
+
+        ret = dialog.exec_()
+
+        if ret == dialog.Ok:
+            return True
+        else:
+            return False
 
     def confirmationBox(self, itemsToImport):
         dialog = QtWidgets.QMessageBox()
