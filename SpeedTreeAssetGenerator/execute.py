@@ -10,8 +10,7 @@ from . import redshiftProxy
 from pathlib import Path
 
 
-def treeSubnetsFromDir(fbxImportFormat, onlyImportSelected=[],
-                       reimportExisting=True,
+def treeSubnetsFromDir(fbxImportFormat,
                        convertToYup=False):
     """
     Creates subnets from directory. One subnet will be created for each folder containing fbxs
@@ -20,29 +19,8 @@ def treeSubnetsFromDir(fbxImportFormat, onlyImportSelected=[],
     """
     obj = hou.node("/obj")
 
-    """# Get fbx directory
-    fbxImportFormat, fbxFilePaths, fbxFileDirs = fbxSubnet.getFbxFilesList(directory)"""
-
     # Dictionary to Import
     treeDicttoImport = fbxImportFormat
-    """# Only Import selected is tree names (keys)
-    if onlyImportSelected:
-        selectedItems = []  # THESE ARE THE SELECTED FOLDERS TO IMPORT
-        treeDicttoImport = dict()
-        for selectedItem in selectedItems:
-            treeDicttoImport[selectedItem] = fbxImportFormat[selectedItem]"""
-
-    # Only reimport existing
-    if not reimportExisting:
-        # Get all created subnets in obj
-        existingTreeSubnetNames = []
-        for child in obj.children():
-            if child.creatorState() == "SpeedTree Asset Generator by Daniel":
-                existingTreeSubnetNames.append(child.name())
-        # Delete existing tree subnet name from dictionary to import
-        for existingTreeSubnetName in existingTreeSubnetNames:
-            if existingTreeSubnetName in treeDicttoImport:
-                del treeDicttoImport[existingTreeSubnetName]
 
     treeSubnetsFromDir = []
     createdTreeSubnets = []

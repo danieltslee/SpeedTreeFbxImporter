@@ -2,6 +2,7 @@ import hou
 import os
 from . import fbxSubnet
 from . import execute
+from . import helper
 from PySide2 import QtCore, QtUiTools, QtWidgets
 from functools import partial
 from collections import OrderedDict
@@ -31,9 +32,17 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
 
         # Select model is rows only
         self.ui.tableOfFoldersOnDisk.setSelectionBehavior(QtWidgets.QTableView.SelectRows)
+        self.ui.tableOfTreeSubnets.setSelectionBehavior(QtWidgets.QTableView.SelectRows)
+
+        # Format table of trees in dir
+        self.formatColumnWidth(self.ui.tableOfFoldersOnDisk)
 
         # Detect tree subnets in scene
         self.populateTreeSubnetTable()
+        self.visualizeTreeSubnetTable()
+
+        # fbx import formatted dictionary
+        self.fbxImportFormat = dict()
 
         # Signal
         self.signals()
@@ -42,10 +51,10 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         self.ui.launchBrowser.pressed.connect(partial(self.launchTreeDirectoryBrowser))
         self.ui.tableOfFoldersOnDisk.customContextMenuRequested.connect(self.tableMenuTreesInDir)
 
-        self.ui.importFbxExecute.pressed.connect(partial(self.testFunc))
+        self.ui.importFbxExecute.pressed.connect(partial(self.exeImportFbx))
 
         # TODO update when line edit (directoryPath) is manually typed in
-        #self.ui.directoryPath.textChanged.connect(self.updateTreeDirTable)
+        self.ui.directoryPath.returnPressed.connect(self.directoryPathEnter)
 
     def launchTreeDirectoryBrowser(self):
         """ Open file explorer to find the directory containing trees """
@@ -85,7 +94,6 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
 
         # If no folders containing fbxs were found
         if len(fbxDirNames) == 0:
-            # TODO add button functionality
             ok = self.messageBox(self.directoryPath)
 
         # Populate table
@@ -106,17 +114,50 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
             messageObj = QtWidgets.QTableWidgetItem(messageStr)
             self.ui.tableOfFoldersOnDisk.setItem(importIndex, 2, messageObj)
 
-    # TODO this updates when directoryPath is editted by text
-    def updateTreeDirTable(self):
+        # Column width
+        self.formatColumnWidth(self.ui.tableOfFoldersOnDisk)
+
+    def directoryPathEnter(self):
+        # Reformat Table
+        self.reformatClearedTable()
+        # Set directory path to new input
+        self.directoryPath = self.ui.directoryPath.text()
+        path = self.directoryPath
+        # If invalid path, then return
+        if not os.path.isdir(path):
+            self.invalidPathBox()
+            return
+
         self.populateTreeDirTable(self.directoryPath)
+        # Visualise Tables
+        self.visualizeTreeDirTable()
+        self.visualizeTreeSubnetTable()
+
+    def invalidPathBox(self):
+        dialog = QtWidgets.QMessageBox()
+        dialog.setIcon(QtWidgets.QMessageBox.Information)
+        dialog.setWindowTitle("Error: Invalid Path Entered")
+        dialog.setText("Invalid path entered. Please enter a valid path "
+                       "or browse to directory.")
+
+        dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
+
+        ret = dialog.exec_()
+
+        if ret == dialog.Ok:
+            return True
+        else:
+            return False
 
     def messageBox(self, dir):
         dialog = QtWidgets.QMessageBox()
         dialog.setIcon(QtWidgets.QMessageBox.Information)
-        dialog.setWindowTitle("Proceed?")
-        dialog.setText("No fbxs found in {DIR}, proceed?".format(DIR=dir))
+        dialog.setWindowTitle("Error: No fbx Files Found")
+        dialog.setText("No fbxs found in {DIR}".format(DIR=dir))
 
-        dialog.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
+        #dialog.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
+        dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
         dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
 
         ret = dialog.exec_()
@@ -190,6 +231,9 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
             messageObj = QtWidgets.QTableWidgetItem(messageStr)
             self.ui.tableOfTreeSubnets.setItem(nodeIndex, 2, messageObj)
 
+        # Column width
+        self.formatColumnWidth(self.ui.tableOfTreeSubnets)
+
     def getTableContents(self, uiTable):
         """ Get nested list of the uiTable object provided """
         rowCount = uiTable.rowCount()
@@ -240,6 +284,9 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
 
             currentRow += 1
 
+        # Column width
+        self.formatColumnWidth(self.ui.tableOfFoldersOnDisk)
+
     def visualizeTreeSubnetTable(self):
         """ Updates messages according to fbxs detected. Changes row colors. """
         tableOfFoldersOnDiskContents = self.getTableContents(self.ui.tableOfFoldersOnDisk)
@@ -249,6 +296,7 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
             self.populateTreeSubnetTable()
             return
 
+        # Check fbx count to geo count
         currentRow = 0
         for treeKey, valueList in tableOfTreeSubnetsContents.items():
             # If it is a new tree
@@ -274,13 +322,36 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
 
                 currentRow += 1
 
-    def confirmationBox(self, dir):
+        # Check if formatted correctly
+
+
+        # Column width
+        self.formatColumnWidth(self.ui.tableOfTreeSubnets)
+
+    def formatColumnWidth(self, uiTable):
+        """ Streches 3rd column in table """
+        header = uiTable.horizontalHeader()
+        header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
+
+    def confirmationBox(self, itemsToImport):
         dialog = QtWidgets.QMessageBox()
         dialog.setIcon(QtWidgets.QMessageBox.Information)
-        dialog.setWindowTitle("Proceed?")
-        dialog.setText("No fbxs found in {DIR}, proceed?".format(DIR=dir))
 
-        dialog.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
+        if itemsToImport:
+            title = "Proceed With Fbx Import?"
+            treeTxt = "trees" if len(itemsToImport) > 1 else "tree"
+            message = "Tree Subnets to import: " \
+                      "{TREETXT} {JOIN1}, and {JOIN2}.".format(TREETXT=treeTxt,
+                                                               JOIN1=", ".join(itemsToImport[:-1]),
+                                                               JOIN2=itemsToImport[-1])
+        else:
+            title = "Error: No Trees Selected"
+            message = "No trees Selected. Please select items to import"
+
+        dialog.setWindowTitle(title)
+        dialog.setText(message)
+
+        dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
         dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
 
         ret = dialog.exec_()
@@ -290,15 +361,40 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         else:
             return False
 
-    def testFunc(self):
+    def noTreesInTableBox(self):
+        """ Message for if trees in Directory table is empty """
+        dialog = QtWidgets.QMessageBox()
+        dialog.setIcon(QtWidgets.QMessageBox.Information)
+
+        dialog.setWindowTitle("Error: No Directory Specified")
+        dialog.setText("Please enter a valid path or browse to directory.")
+
+        dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
+
+        ret = dialog.exec_()
+
+        if ret == dialog.Ok:
+            return True
+        else:
+            return False
+
+    def formatTreeDictToImport(self):
+        """ Format dictionary to import fbx.
+         Ex:{"BostonFern": [path/to/geo1.fbx, path/to/geo2.fbx]} """
         tableOfFoldersOnDiskContents = self.getTableContents(self.ui.tableOfFoldersOnDisk)
-        allTreeKeysFromTable = list(tableOfFoldersOnDiskContents)
+        allTreeKeysFromTable = list(tableOfFoldersOnDiskContents.keys())
         rowItems = self.ui.tableOfFoldersOnDisk.selectionModel().selectedRows()
 
-        print("only import selected: " + str(self.ui.onlyImportSelectedFolders.isChecked()))
+        # Message Box: If nothing in table from directory
+        if not tableOfFoldersOnDiskContents:
+            self.noTreesInTableBox()
+            return
 
-        # List of tree keys to import
+        # List of tree keys to import. Ex: ["BostonFern", "AmericanElm", "BananaPlant]
         itemsToImport = []
+
+        # Check if only import selected folders is checked
         if self.ui.onlyImportSelectedFolders.isChecked():
             for rowItem in rowItems:
                 rowIndex = rowItem.row()
@@ -306,6 +402,20 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         else:
             fbxImportFormat = fbxSubnet.getFbxFilesList(self.directoryPath)[0]
             itemsToImport = fbxImportFormat.keys()
+        # Check if reimport existing tree subnets is checked
+        if not self.ui.reimportExistingTreeSubnets.isChecked():
+            # Get all created subnets in obj
+            tableOfTreeSubnetsContents = self.getTableContents(self.ui.tableOfTreeSubnets)
+            existingTreeSubnetNames = list(tableOfTreeSubnetsContents.keys())
+            # Delete existing tree subnet name from dictionary to import
+            for existingTreeSubnetName in existingTreeSubnetNames:
+                if existingTreeSubnetName in itemsToImport:
+                    itemsToImport.remove(existingTreeSubnetName)
+
+        # Message Box: Check if items to import is empty
+        if not itemsToImport:
+            self.confirmationBox(itemsToImport)
+            return
 
         # Get fbx formatted dictionary for all items in directory path
         fbxImportFormat = fbxSubnet.getFbxFilesList(self.directoryPath)[0]
@@ -315,13 +425,17 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         for item in itemsToImport:
             treeDicttoImport[item] = fbxImportFormat[item]
 
-        reimportExisting = self.ui.reimportExistingTreeSubnets.isChecked()
-        convertToYup = self.ui.convertToYup.isChecked()
+        return treeDicttoImport
 
+    def exeImportFbx(self):
+        """ Press Import Fbx button """
+        treeDicttoImport = self.formatTreeDictToImport()
+
+        convertToYup = self.ui.convertToYup.isChecked()
         treeSubnetsFromDir = execute.treeSubnetsFromDir(treeDicttoImport,
-                                                        reimportExisting=reimportExisting,
                                                         convertToYup=convertToYup)
 
+        # Check reset transformations and match size
         resetTransforms = self.ui.resetTransformations.isChecked()
         matchSize = self.ui.matchSize.isChecked()
 
