@@ -46,6 +46,7 @@ def AssignMaterials(treeSubnet, matnetName, resetTransforms=True, matchSize=True
         if matchSize:
             matchsizeNode = treeGeoNet.findNodes("type", "matchsize")[0]
             matchsizeNode.setParms({"justify_y": 1})
+            matchsizeNode.setParmExpressions({"offset_y": "bbox(0, D_YMIN)*ch('scale_to_match1/scale')"})
             matchsizeNode.setParms({"doscale": 1})
             matchsizeNode.setParms({"uniformscale": 1})
             matchsizeNode.setParms({"scale_axis": 0})
@@ -143,9 +144,6 @@ def createMatnet(treeSubnet, matnetName):
     treeGeo = treeSubnet.children()[0]
     treeGeoNet = cnn.MyNetwork(treeGeo)
 
-    # Get variables
-    treeName = treeSubnet.name()
-
     # Create Redshift material networks based on existing primitive groups
     groupNodes = treeGeoNet.findNodes("group", method="name")
     groupNameParms = [groupNode.parm("crname") for groupNode in groupNodes]
@@ -159,16 +157,19 @@ def createMatnet(treeSubnet, matnetName):
         rsmb = treeMatnet.createNode("redshift_vopnet", materialName)
         rsmbOut = rsmb.children()[0]
         shader = rsmb.children()[1]
+
+        # Texture extension
+        texExt = ".png"
         
         # Create Diffuse
         colorVop = rsmb.createNode("redshift::TextureSampler", "Color")
         colorVop.setParms({"tex0_colorSpace": "sRGB"})
-        colorPath = texturePathTemplate(matDir, materialName, ".png")
+        colorPath = texturePathTemplate(matDir, materialName, texExt)
         colorVop.setParms({"tex0": colorPath})
         # Create Normal
         normalVop = rsmb.createNode("redshift::TextureSampler", "Normal")
         normalVop.setParms({"tex0_colorSpace": "Raw"})
-        normalPath = texturePathTemplate(matDir, materialName, ".png", texType="Normal")
+        normalPath = texturePathTemplate(matDir, materialName, texExt, texType="Normal")
         normalVop.setParms({"tex0": normalPath})
         # Create Bump Vop
         bumpVop = rsmb.createNode("redshift::BumpMap")
@@ -184,7 +185,7 @@ def createMatnet(treeSubnet, matnetName):
 
         # Find Opacity Image
         try:
-            texOpacityPath = texturePathTemplate(matDir, materialName, ".png", texType="Opacity")
+            texOpacityPath = texturePathTemplate(matDir, materialName, texExt, texType="Opacity")
             # Sample Opacity Image
             img = Image.open(texOpacityPath)
             imgData = list(img.getdata(band=0))
@@ -207,8 +208,6 @@ def createMatnet(treeSubnet, matnetName):
 
     # Format tree matnet
     treeMatnet.layoutChildren(vertical_spacing=1)
-
-
 
     return treeSubnet
 
