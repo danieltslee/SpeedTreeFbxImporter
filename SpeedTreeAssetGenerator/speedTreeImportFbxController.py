@@ -256,10 +256,12 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         if firstHeader == "Tree Name":
             self.visualizeTreeDirTable()
         elif firstHeader == "Tree Subnet":
-            self.visualizeTreeSubnetTable()
+            subnetsExists = self.populateTreeSubnetTable()
+            if subnetsExists:
+                self.visualizeTreeSubnetTable()
 
     def populateTreeSubnetTable(self):
-        """ Detects tree subnets in scene and populates table """
+        """ Detects tree subnets in scene and populates table. Returns True if there are contents. """
         obj = hou.node("/obj")
         # Clear contents and rows
         self.ui.tableOfTreeSubnets.clearContents()
@@ -314,6 +316,8 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         # Column width
         self.formatColumnWidth(self.ui.tableOfTreeSubnets)
 
+        return True
+
     def getTableContents(self, uiTable):
         """ Get nested list of the uiTable object provided """
         rowCount = uiTable.rowCount()
@@ -359,12 +363,15 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
             # Update Message and color if subnetMsg has error
             if subnetMsg == "New tree detected.":  # If new tree detected
                 subnetMsgObj = QtWidgets.QTableWidgetItem(subnetMsg)
-                self.ui.tableOfFoldersOnDisk.setItem(currentRow, 2, subnetMsgObj)
                 newColor = QtCore.Qt.green
             elif subnetMsg:  # If subnet has error
                 subnetMsgObj = QtWidgets.QTableWidgetItem(subnetMsg + "Consider reimporting.")
-                self.ui.tableOfFoldersOnDisk.setItem(currentRow, 2, subnetMsgObj)
                 newColor = QtCore.Qt.yellow
+            else:  # if tree exists in scene and no error
+                subnetMsgObj = QtWidgets.QTableWidgetItem("Tree subnet exists in scene.")
+
+            # Update mesage
+            self.ui.tableOfFoldersOnDisk.setItem(currentRow, 2, subnetMsgObj)
             # Update color
             for col in range(0, 3):
                 tableItem = self.ui.tableOfFoldersOnDisk.item(currentRow, col)

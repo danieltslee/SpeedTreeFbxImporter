@@ -30,6 +30,7 @@ def treeSubnetsFromDir(fbxImportFormat,
         fbxFilePaths = treeDicttoImport[key]
         treeSubnet, actionMessage = fbxSubnet.importSpeedTreeFbx(subnetName, fbxFilePaths,
                                                                  convertToYup=convertToYup)
+        treeSubnet.setDisplayFlag(False)
         print("{MSG}".format(MSG=actionMessage))
 
         # If created, store in list
