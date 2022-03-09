@@ -7,7 +7,7 @@ from . import fbxSubnet
 from . import fbxSubnetFormat
 from . import treeScatterSubnet
 from . import redshiftProxy
-#from pathlib import Path
+from pathlib import Path
 
 
 def treeSubnetsFromDir(fbxImportFormat,
@@ -132,7 +132,7 @@ def generateRedshiftProxy(treeSubnets, rsFolder,
     :return: None
     """
     # Format directory path
-    #rsFolder = Path(rsFolder)
+    rsFolder = Path(rsFolder)
 
     for treeSubnet in treeSubnets:
         redshiftProxy.createRedshiftProxy(treeSubnet, rsFolder,

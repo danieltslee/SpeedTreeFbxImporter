@@ -1,13 +1,13 @@
-import classNodeNetwork
-import fbxSubnet
-import fbxSubnetFormat
-import treeScatterSubnet
-import redshiftProxy
-import helper
-import execute
-import teststag
-import scatterAssetGeneratorController
-import speedTreeImportFbxController
+from . import classNodeNetwork
+from . import fbxSubnet
+from . import fbxSubnetFormat
+from . import treeScatterSubnet
+from . import redshiftProxy
+from . import helper
+from . import execute
+from . import teststag
+from . import scatterAssetGeneratorController
+from . import speedTreeImportFbxController
 
 
 import importlib
