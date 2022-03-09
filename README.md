@@ -60,6 +60,7 @@ FolderWithAllMyTrees          # Folder
 ![This is an image](SpeedTreeAssetGenerator/pythonPanelLocation.png)
 
 2. Select SpeedTree Fbx Importer by Daniel in the drop down menu.
+
 ![This is an image](SpeedTreeAssetGenerator/pythonPanelDropDown.png)
 
 
