@@ -152,6 +152,9 @@
           <property name="text">
            <string>Only Import Selected Folders</string>
           </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
@@ -282,6 +285,19 @@
           </property>
           <property name="text">
            <string>Match Size</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="genRsMatandAssign">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If &lt;span style=&quot; font-weight:600;&quot;&gt;checked&lt;/span&gt;, generate matnet with Redshift materials and assign materials to geometry.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Generate Redshift Materials and Assign Materials</string>
           </property>
           <property name="checked">
            <bool>true</bool>
