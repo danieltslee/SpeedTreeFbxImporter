@@ -26,6 +26,7 @@ The importer will import subnets with this structure into the Houdini scene:
 ## Exporting From SpeedTree
 > Export SpeedTree generated models using the Export Mesh tool in SpeedTree. Ensure that *Group By* is set to *Hierachy*.  
 > ***Do not import using the model using the Export Game tool.***
+
 ![This is an image](images/speedTreeExportMesh.png)
 
 ## Setup
