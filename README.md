@@ -32,7 +32,7 @@ AppleTree                     # Example of AppleTree Folder
 ├── Bark.png                  # fbx file
 └── Leaf.png                  # Textures
 ```
-Example of a folder structure. Folders may contain any number of subdirectories:
+> Example of a folder structure. Folders may contain any number of subdirectories:
 ```
 FolderWithAllMyTrees          # Folder
 ├── FruitTrees                # Folder
@@ -50,11 +50,15 @@ FolderWithAllMyTrees          # Folder
 ├── Oak                       # Folder with SpeedTree assets
 └── MapleTree                 # Folder with SpeedTree assets
 ```
+### Script Location
+> Scripts must be in 
 ### Houdini Setup
 > This tool is accessed through a dockable Python Panel in a Houdini session.
-> Add a python panel
+
+1. Add a python panel.
 ![This is an image](SpeedTreeAssetGenerator/pythonPanelLocation.png)
-> Specify SpeedTree Fbx Importer by Daniel in the drop down menu
+
+2. Select SpeedTree Fbx Importer by Daniel in the drop down menu.
 ![This is an image](SpeedTreeAssetGenerator/pythonPanelDropDown.png)
 
 
