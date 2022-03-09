@@ -51,8 +51,8 @@ FolderWithAllMyTrees          # Folder
 └── MapleTree                 # Folder with SpeedTree assets
 ```
 ### Script Location
-> Place SpeedTreeAssetGenerator folder in `$HOUDINI_USER_PREF_DIR`/python2.7libs . Create the folder if missing.  
-> For Gnomon, it should just be in Z:\houdini19.0\python3.7libs
+> Place SpeedTreeAssetGenerator folder in `$HOUDINI_USER_PREF_DIR`/python3.7libs . Create the folder if missing.  
+> For Gnomon, place SpeedTreeAssetGenerator folder in Z:/houdini19.0/python3.7libs
 ### Houdini Setup
 > This tool is accessed through a dockable Python Panel in a Houdini session.
 
