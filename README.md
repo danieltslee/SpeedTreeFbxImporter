@@ -54,9 +54,10 @@ FolderWithAllMyTrees          # Folder
 ```
 ### Script Location
 > Add SpeedTreeAssetGenerator folder $HOUDINI_USER_PREF_DIR/python3.7libs . See [python locations](https://www.sidefx.com/docs/houdini/hom/locations.html) for docs on Python script locations.  
-> For Gnomon, place SpeedTreeAssetGenerator folder in Z:/houdini19.0/python3.7libs  
+> For Gnomon, place SpeedTreeAssetGenerator folder in Z:/houdini19.0/python3.7libs . Create the folder if it does not exist.  
+> 
 > Add SpeedTreeFbxImporterByDaniel.pypanel to python_panels directory. See [python panel](https://www.sidefx.com/docs/houdini/ref/windows/pythonpaneleditor.html) for docs on Python Panel Editor.  
-> For Gnomon, place SpeedTreeFbxImporterByDaniel.pypanel in Z:/houdini19.0/python_panels
+> For Gnomon, place SpeedTreeFbxImporterByDaniel.pypanel in Z:/houdini19.0/python_panels . Create the folder if it does not exist.  
 ### Houdini Setup
 > This tool is accessed through a dockable Python Panel in a Houdini session.
 
@@ -64,11 +65,12 @@ FolderWithAllMyTrees          # Folder
 
 ![This is an image](images/pythonPanelLocation.png)
 
-2. Select SpeedTree Fbx Importer by Daniel in the drop down menu.
+2. Select SpeedTree Fbx Importer by Daniel in the drop down menu. If the selection is missing, restart Houdini.
 
 ![This is an image](images/pythonPanelDropDown.png)
 ## Notes
-Importing SpeedTree fbxs automatically creates and assigns primitive groups according to material. Do not change name of the group nodes and group names. Do not change the name of texture files. They match the group names by default.
+SpeedTree fbxs automatically assigns primitive groups according to material.  
+*Do not change name of the group nodes and group names. Do not change the name of texture files. If materials are not rendering, consider reimporting.*
 ## Task List
 - [ ] Make compatible with assets other than fbx
 - [ ] Make compatible with versions before Houdini 19.0

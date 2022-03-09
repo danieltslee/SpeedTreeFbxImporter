@@ -129,4 +129,6 @@ def importSpeedTreeFbx(treeSubnetName, fbxFilePathsList, convertToYup=False):
 
     return treeSubnet, actionMessage
 
+    # Message
+    actionMessage = "{ACTION} Tree Subnet: {TREESUBNETNAME}".format(ACTION=action, TREESUBNETNAME=treeSubnetName)
 
