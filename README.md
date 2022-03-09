@@ -27,14 +27,17 @@ To run this project, the assets on disk must be structured like this. Subdirecto
 ```
 FolderWithAllMyTrees          # Folder
 ├── FruitTrees                # Folder
-│   ├── Berries               # Folder
+│   │   Berries               # Folder
 │   │   └── Strawberry        # Folder with SpeedTree assets
+|   |
 │   ├── AppleTree             # Folder with SpeedTree assets
 │   ├── BananaPlant           # Folder with SpeedTree assets
 │   └── CherryTree            # Folder with SpeedTree assets
+| 
 ├── AfricanTrees              # Folder
 │   ├── Acacia                # Folder with SpeedTree assets
 │   └── Baobab                # Folder with SpeedTree assets
+|
 ├── Oak                       # Folder with SpeedTree assets
 └── MapleTree                 # Folder with SpeedTree assets
 ```
