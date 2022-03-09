@@ -2,12 +2,12 @@
 This tool imports assets generated from SpeedTree into Houdini. Imported assets will be contained within subnets along with Redshift materials and material assignments.
 
 ## Table of contents
-* [General info](#general-info)
+* [General Info](#general-info)
 * [Requirements](#requirements)
 * [Setup](#setup)
-* [Task List](#taskList)
+* [Task List](#task-list)
 
-## General info
+## General Info
 The importer will import subnets with this structure into the Houdini scene:
 ```
 /obj                        # obj context
