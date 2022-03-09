@@ -31,7 +31,7 @@ AppleTree                     # Example of AppleTree Folder
 ├── AppleTree_var1.fbx        # fbx file
 ├── Bark.png                  # fbx file
 └── Leaf.png                  # Textures
-
+```
 Example of a folder structure:
 ```
 FolderWithAllMyTrees          # Folder
