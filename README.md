@@ -52,6 +52,6 @@ FolderWithAllMyTrees          # Folder
 ```
 ### Houdini Setup
 > This tool is accessed through a dockable Python Panel in a Houdini session.
-![This is an image](/SpeedTreeFbxImporter/SpeedTreeAssetGenerator/pythonPanelDropDown.png)
+![This is an image](SpeedTreeAssetGenerator/pythonPanelDropDown.png)
 
 
