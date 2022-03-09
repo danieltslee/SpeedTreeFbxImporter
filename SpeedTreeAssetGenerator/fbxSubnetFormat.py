@@ -8,7 +8,7 @@ from . import fbxSubnet
 from PIL import Image
 
 
-def AssignMaterials(treeSubnet, matnetName, resetTransforms=True, matchSize=True):
+def AssignMaterials(treeSubnet, matnetName, resetTransforms=True, matchSize=True, assignMat=True):
     """ Creates s@shop_materialpath attribute to existing primitive groups
     Returns formatted Tree Subnet """
 
@@ -33,9 +33,11 @@ def AssignMaterials(treeSubnet, matnetName, resetTransforms=True, matchSize=True
         lastSop = treeGeoNet.findLastNode()
 
         # Add nodes
-        addedNodes = ["attribwrangle", "pack", "output"]
+        addedNodes = ["pack", "output"]
         if matchSize:
-            addedNodes = ["attribwrangle", "matchsize", "pack", "output"]
+            addedNodes.insert(1, "matchsize")
+        if assignMat:
+            addedNodes.insert(0, "attribwrangle")
         # Prefix of new nodes
         newNodesPrefix = treeSubnet.name() + "_"
         newNodes = treeGeoNet.addNodes(*addedNodes, prefix=newNodesPrefix)
@@ -52,11 +54,12 @@ def AssignMaterials(treeSubnet, matnetName, resetTransforms=True, matchSize=True
             matchsizeNode.setParms({"scale_axis": 0})
 
         # Add vex snippet to attribute wrangle. Create s@shop_materialpath to primitives
-        assignWrangle = treeGeoNet.findNodes("type", "attribwrangle")[0]
-        assignWrangle.setName(newNodesPrefix+"assign_materials")
-        snippetParm = assignWrangle.parm("snippet")
-        matnetPath = "../../{MATNETNAME}/".format(MATNETNAME=matnetName)
-        assignSnippet = '''// Assign different materials for each primitive group
+        if assignMat:
+            assignWrangle = treeGeoNet.findNodes("type", "attribwrangle")[0]
+            assignWrangle.setName(newNodesPrefix+"assign_materials")
+            snippetParm = assignWrangle.parm("snippet")
+            matnetPath = "../../{MATNETNAME}/".format(MATNETNAME=matnetName)
+            assignSnippet = '''// Assign different materials for each primitive group
 string groups[] = detailintrinsic(0, "primitivegroups");
 
 foreach (string group; groups) {{
@@ -66,9 +69,9 @@ foreach (string group; groups) {{
         }}
 
     }}
-        '''.format(MATNETPATH=matnetPath)
-        snippetParm.set(assignSnippet)
-        assignWrangle.setParms({"class": 1})
+            '''.format(MATNETPATH=matnetPath)
+            snippetParm.set(assignSnippet)
+            assignWrangle.setParms({"class": 1})
 
         # Layout children
         treeGeo.layoutChildren(vertical_spacing=0.35)

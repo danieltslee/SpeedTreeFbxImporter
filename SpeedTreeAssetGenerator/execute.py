@@ -49,20 +49,23 @@ def treeSubnetsFromDir(fbxImportFormat,
     return treeSubnetsFromDir
 
 
-def treeSubnetsReformat(treeSubnetList, resetTransforms=True, matchSize=True):
+def treeSubnetsReformat(treeSubnetList, resetTransforms=True, matchSize=True, genRsMatandAssign=True):
 
     treeSubnetsReformatted = []
     for treeSubnet in treeSubnetList:
         # Format fbx
         # Create Matnet
         matnetName = treeSubnet.name() + "_matnet"
-        treeSubnet = fbxSubnetFormat.createMatnet(treeSubnet, matnetName)
-        print("Materials Created for: " + treeSubnet.name())
+        if genRsMatandAssign:
+            treeSubnet = fbxSubnetFormat.createMatnet(treeSubnet, matnetName)
+            print("Materials Created for: " + treeSubnet.name())
         # Create Material Assignments
+        assignMat = genRsMatandAssign
         treeSubnet = fbxSubnetFormat.AssignMaterials(treeSubnet, matnetName,
                                                      resetTransforms=resetTransforms,
-                                                     matchSize=matchSize)
-        print("Created MaterialAssignments for: " + treeSubnet.name())
+                                                     matchSize=matchSize,
+                                                     assignMat=assignMat)
+        print("Formatted: " + treeSubnet.name())
 
     treeSubnetsReformatted.append(treeSubnet)
 

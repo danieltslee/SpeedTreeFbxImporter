@@ -282,18 +282,6 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
             noneMsgObj.setTextAlignment(QtCore.Qt.AlignCenter)
             noneMsgObj.setForeground(QtCore.Qt.red)
             self.ui.tableOfTreeSubnets.setItem(0, 0, noneMsgObj)
-
-            """noneMsgObj1 = QtWidgets.QTableWidgetItem("None")
-            noneMsgObj1.setForeground(QtCore.Qt.red)
-            noneMsgObj2 = QtWidgets.QTableWidgetItem("None")
-            noneMsgObj2.setForeground(QtCore.Qt.red)
-            self.ui.tableOfTreeSubnets.setItem(0, 0, noneMsgObj1)
-            self.ui.tableOfTreeSubnets.setItem(0, 1, noneMsgObj2)
-
-            noSubnetsMessage = "No Tree Subnets Detected."
-            noSubnetsMessageObj = QtWidgets.QTableWidgetItem(noSubnetsMessage)
-            noSubnetsMessageObj.setForeground(QtCore.Qt.red)
-            self.ui.tableOfTreeSubnets.setItem(0, 2, noSubnetsMessageObj)"""
             return
 
         # Generate rows
@@ -616,10 +604,11 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         # Check reset transformations and match size
         resetTransforms = self.ui.resetTransformations.isChecked()
         matchSize = self.ui.matchSize.isChecked()
-
+        genRsMatandAssign = self.ui.genRsMatandAssign.isChecked()
         execute.treeSubnetsReformat(treeSubnetsFromDir,
                                     resetTransforms=resetTransforms,
-                                    matchSize=matchSize)
+                                    matchSize=matchSize,
+                                    genRsMatandAssign=genRsMatandAssign)
 
         # Reset tables and visualizations
         self.populateTreeSubnetTable()
