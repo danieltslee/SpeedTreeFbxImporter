@@ -65,7 +65,7 @@ FolderWithAllMyTrees          # Folder
 
 ![This is an image](images/pythonPanelLocation.png)
 
-2. Select SpeedTree Fbx Importer by Daniel in the drop down menu.
+2. Select SpeedTree Fbx Importer by Daniel in the drop down menu. If the selection is missing, restart Houdini.
 
 ![This is an image](images/pythonPanelDropDown.png)
 ## Notes
