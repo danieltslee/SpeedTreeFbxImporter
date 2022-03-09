@@ -56,6 +56,7 @@ FolderWithAllMyTrees          # Folder
 > This tool is accessed through a dockable Python Panel in a Houdini session.
 
 1. Add a python panel.
+
 ![This is an image](SpeedTreeAssetGenerator/pythonPanelLocation.png)
 
 2. Select SpeedTree Fbx Importer by Daniel in the drop down menu.
