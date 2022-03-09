@@ -66,8 +66,7 @@ FolderWithAllMyTrees          # Folder
 
 ![This is an image](SpeedTreeAssetGenerator/pythonPanelDropDown.png)
 ## Notes
-Importing SpeedTree fbxs automatically creates and assigns primitive groups according to material. Do not change name of the group nodes and group names.  
-Do not change the name of texture files. They match the group names by default.
+Importing SpeedTree fbxs automatically creates and assigns primitive groups according to material. Do not change name of the group nodes and group names. Do not change the name of texture files. They match the group names by default.
 ## Task List
 - [] Make compatible with versions before Houdini 19.0
 - [] Support textures other than png
