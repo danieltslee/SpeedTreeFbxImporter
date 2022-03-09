@@ -164,6 +164,7 @@ def createMatnet(treeSubnet, matnetName):
         groupNameParms = [groupNode.parm("crname") for groupNode in groupNodes]
         groupMaterials = [groupNameParm.eval().replace("_group", "") for groupNameParm in groupNameParms]
         allGroupMaterialNames.extend(groupMaterials)
+    allGroupMaterialNames = set(allGroupMaterialNames)
 
     # Get path of the materials
     matDir = materialDirectory(treeSubnet)

@@ -49,7 +49,6 @@ def getFbxFilesList(rootDir):
 
     return fbxImportFormat, fbxFilePaths, fbxFileDirs
 
-
 def importSpeedTreeFbx(treeSubnetName, fbxFilePathsList, convertToYup=False):
     """ Imports all Speed Tree fbx files in a directory and collapses into a single subnet
     Returns subnet with cleaned geometry nodes """
@@ -108,8 +107,6 @@ def importSpeedTreeFbx(treeSubnetName, fbxFilePathsList, convertToYup=False):
             importedSubnet.setName(treeSubnetName)
             treeSubnet = importedSubnet
 
-
-
     # Move to old position if exists
     if oldTreeSubnet:
         treeSubnet.setPosition(oldTreeSubnetPos)
@@ -128,7 +125,4 @@ def importSpeedTreeFbx(treeSubnetName, fbxFilePathsList, convertToYup=False):
     actionMessage = "{ACTION} Tree Subnet: {TREESUBNETNAME}".format(ACTION=action, TREESUBNETNAME=treeSubnetName)
 
     return treeSubnet, actionMessage
-
-    # Message
-    actionMessage = "{ACTION} Tree Subnet: {TREESUBNETNAME}".format(ACTION=action, TREESUBNETNAME=treeSubnetName)
 

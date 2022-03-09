@@ -28,7 +28,9 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         self.directoryPath = hipDir
         self.ui.directoryPath.setText(self.directoryPath)
 
+        # Set menu policy for right click menu
         self.ui.tableOfFoldersOnDisk.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.ui.tableOfTreeSubnets.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
         # Select model is rows only
         self.ui.tableOfFoldersOnDisk.setSelectionBehavior(QtWidgets.QTableView.SelectRows)
@@ -49,12 +51,19 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
 
     def signals(self):
         self.ui.launchBrowser.pressed.connect(partial(self.launchTreeDirectoryBrowser))
-        self.ui.tableOfFoldersOnDisk.customContextMenuRequested.connect(self.tableMenuTreesInDir)
+        # Right click menu table of fbxs in dir
+        self.ui.tableOfFoldersOnDisk.customContextMenuRequested.connect(self.tableRightClickMenuDIR)
+        # Right click menu table of tree subnets in scene
+        self.ui.tableOfTreeSubnets.customContextMenuRequested.connect(self.tableRightClickMenuSCENE)
 
+        # Import Fbx Button
         self.ui.importFbxExecute.pressed.connect(partial(self.exeImportFbx))
 
-        # TODO update when line edit (directoryPath) is manually typed in
+        # Enter pressed on directory path line edit
         self.ui.directoryPath.returnPressed.connect(self.directoryPathEnter)
+
+        # Detect when checkbox is clicked
+        self.ui.reimportExistingSubnets.toggled.connect(self.onReimportExistingSubnetsClicked)
 
     def launchTreeDirectoryBrowser(self):
         """ Open file explorer to find the directory containing trees """
@@ -110,7 +119,7 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
             fbxFoundMsgObj = QtWidgets.QTableWidgetItem(fbxFoundMsg)
             self.ui.tableOfFoldersOnDisk.setItem(importIndex, 1, fbxFoundMsgObj)
             # Third item is message
-            messageStr = "default message"
+            messageStr = "Tree subnet exists in scene."
             messageObj = QtWidgets.QTableWidgetItem(messageStr)
             self.ui.tableOfFoldersOnDisk.setItem(importIndex, 2, messageObj)
 
@@ -119,7 +128,7 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
 
     def directoryPathEnter(self):
         # Reformat Table
-        self.reformatClearedTable()
+        self.reformatClearedTable(self.ui.tableOfFoldersOnDisk)
         # Set directory path to new input
         self.directoryPath = self.ui.directoryPath.text()
         path = self.directoryPath
@@ -167,25 +176,92 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         else:
             return False
 
-    def tableMenuTreesInDir(self, pos):
+    def tableRightClickMenuDIR(self, pos):
         """ Right Click Menu for tableOfFoldersOnDisk """
+        # Initialize Menu
         menu = QtWidgets.QMenu()
-        self.fileAction = QtWidgets.QAction("Clear Table")
-        self.fileAction.triggered.connect(self.reformatClearedTable)
-        menu.addAction(self.fileAction)
+
+        # Clear table action
+        clearTable = QtWidgets.QAction("Clear Table")
+        clearTable.triggered.connect(lambda: self.reformatClearedTable(self.ui.tableOfFoldersOnDisk))
+        menu.addAction(clearTable)
+
+        # Select all action
+        selectAllRows = QtWidgets.QAction("Select All")
+        selectAllRows.triggered.connect(lambda: self.selectAllAction(self.ui.tableOfFoldersOnDisk))
+        menu.addAction(selectAllRows)
+
+        # Clear selection action
+        clearSelection = QtWidgets.QAction("Clear Selection")
+        clearSelection.triggered.connect(lambda: self.clearSelectionAction(self.ui.tableOfFoldersOnDisk))
+        menu.addAction(clearSelection)
+
+        # Refresh table action
+        refreshTable = QtWidgets.QAction("Refresh Table")
+        refreshTable.triggered.connect(lambda: self.refreshTableAction(self.ui.tableOfFoldersOnDisk))
+        menu.addAction(refreshTable)
+
         menu.exec_(self.ui.tableOfFoldersOnDisk.viewport().mapToGlobal(pos))
 
-    def reformatClearedTable(self):
+    def tableRightClickMenuSCENE(self, pos):
+        """ Right Click Menu for tableOfTreeSubnets """
+        # Initialize Menu
+        menu = QtWidgets.QMenu()
+
+        # Select all action
+        selectAllRows = QtWidgets.QAction("Select All")
+        f = lambda: self.selectAllAction(self.ui.tableOfTreeSubnets)
+        selectAllRows.triggered.connect(f)
+        menu.addAction(selectAllRows)
+
+        # Clear selection action
+        clearSelection = QtWidgets.QAction("Clear Selection")
+        clearSelection.triggered.connect(lambda: self.clearSelectionAction(self.ui.tableOfTreeSubnets))
+        menu.addAction(clearSelection)
+
+        # Refresh table action
+        refreshTable = QtWidgets.QAction("Refresh Table")
+        refreshTable.triggered.connect(lambda: self.refreshTableAction(self.ui.tableOfTreeSubnets))
+        menu.addAction(refreshTable)
+
+        menu.exec_(self.ui.tableOfTreeSubnets.viewport().mapToGlobal(pos))
+
+    # TODO ADDED RIGHT CLICK FUNC DOESN'T WORK FOR NOW
+    def formatRightClickAction(self, title, actionFunc, uiTable, menu):
+        def simpleAdd(menu, action):
+            menu.addAction(action)
+        action = QtWidgets.QAction(title)
+        f = lambda: actionFunc(uiTable)
+        action.triggered.connect(f)
+        simpleAdd(menu, action)
+        return action
+
+    def reformatClearedTable(self, uiTable):
         """ Clears all rows but keeps columns in a table widget """
-        self.ui.tableOfFoldersOnDisk.clearContents()
-        # Clears rows
-        self.ui.tableOfFoldersOnDisk.setRowCount(0)
+        uiTable.clearContents()
+        # Clear rows
+        uiTable.setRowCount(0)
 
         # Revisualize tree subnets table
         self.visualizeTreeSubnetTable()
 
+    def selectAllAction(self, uiTable):
+        uiTable.selectAll()
+
+    def clearSelectionAction(self, uiTable):
+        uiTable.clearSelection()
+
+    def refreshTableAction(self, uiTable):
+        firstHeader = uiTable.horizontalHeaderItem(0).text()
+        if firstHeader == "Tree Name":
+            self.visualizeTreeDirTable()
+        elif firstHeader == "Tree Subnet":
+            subnetsExists = self.populateTreeSubnetTable()
+            if subnetsExists:
+                self.visualizeTreeSubnetTable()
+
     def populateTreeSubnetTable(self):
-        """ Detects tree subnets in scene and populates table """
+        """ Detects tree subnets in scene and populates table. Returns True if there are contents. """
         obj = hou.node("/obj")
         # Clear contents and rows
         self.ui.tableOfTreeSubnets.clearContents()
@@ -201,17 +277,11 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         if not generatedNodes:
             self.ui.tableOfTreeSubnets.setRowCount(1)
 
-            noneMsgObj1 = QtWidgets.QTableWidgetItem("None")
-            noneMsgObj1.setForeground(QtCore.Qt.red)
-            noneMsgObj2 = QtWidgets.QTableWidgetItem("None")
-            noneMsgObj2.setForeground(QtCore.Qt.red)
-            self.ui.tableOfTreeSubnets.setItem(0, 0, noneMsgObj1)
-            self.ui.tableOfTreeSubnets.setItem(0, 1, noneMsgObj2)
-
-            noSubnetsMessage = "No Tree Subnets Detected."
-            noSubnetsMessageObj = QtWidgets.QTableWidgetItem(noSubnetsMessage)
-            noSubnetsMessageObj.setForeground(QtCore.Qt.red)
-            self.ui.tableOfTreeSubnets.setItem(0, 2, noSubnetsMessageObj)
+            self.ui.tableOfTreeSubnets.setSpan(0, 0, 1, 3)
+            noneMsgObj = QtWidgets.QTableWidgetItem("No Tree Subnets Detected.")
+            noneMsgObj.setTextAlignment(QtCore.Qt.AlignCenter)
+            noneMsgObj.setForeground(QtCore.Qt.red)
+            self.ui.tableOfTreeSubnets.setItem(0, 0, noneMsgObj)
             return
 
         # Generate rows
@@ -227,12 +297,14 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
             geoCountObj = QtWidgets.QTableWidgetItem(countStr)
             self.ui.tableOfTreeSubnets.setItem(nodeIndex, 1, geoCountObj)
             # Third item is message
-            messageStr = "This subnet exists in scene.".format()
+            messageStr = "Tree subnet exists in scene.".format()
             messageObj = QtWidgets.QTableWidgetItem(messageStr)
             self.ui.tableOfTreeSubnets.setItem(nodeIndex, 2, messageObj)
 
         # Column width
         self.formatColumnWidth(self.ui.tableOfTreeSubnets)
+
+        return True
 
     def getTableContents(self, uiTable):
         """ Get nested list of the uiTable object provided """
@@ -253,34 +325,45 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
     def visualizeTreeDirTable(self):
         """ Updates messages according to fbxs detected. Changes row colors. """
         tableOfFoldersOnDiskContents = self.getTableContents(self.ui.tableOfFoldersOnDisk)
-        tableOfTreeSubnetsContents = self.getTableContents(self.ui.tableOfTreeSubnets)
+        # Only get tree subnet contents if not empty at first
+        if not self.ui.tableOfTreeSubnets.item(0, 1):
+            tableOfTreeSubnetsContents = OrderedDict()
+        else:
+            tableOfTreeSubnetsContents = self.getTableContents(self.ui.tableOfTreeSubnets)
 
         currentRow = 0
         for treeKey, valueList in tableOfFoldersOnDiskContents.items():
-            newColor = False
+            subnetMsg = None
+            newColor = QtCore.Qt.lightGray  # Default Color
             # If it is a new tree
-            if not treeKey in tableOfTreeSubnetsContents.keys():
+            if treeKey not in tableOfTreeSubnetsContents.keys():
                 subnetMsg = "New tree detected."
-                newColor = QtCore.Qt.green
-
-            # If it already exists in scene
+            #  If tree subnet detected in scene
             else:
-                subnetMsg = "Tree subnet detected in scene."
                 # Check if fbx count is different
                 tableDirFbxText = tableOfFoldersOnDiskContents[treeKey][0]
                 tableTreeSubnetFbxText = tableOfTreeSubnetsContents[treeKey][0]
                 if tableDirFbxText[0] != tableTreeSubnetFbxText[0]:
-                    subnetMsg = "Fbx count is different from scene. Consider reimporting."
-                    newColor = QtCore.Qt.yellow
+                    subnetMsg = str(subnetMsg or "") + "Fbx count is different from scene. "
+                # Check if matnet is formatted correctly
+                subnetMsg = str(subnetMsg or "") + self.checkMatnetFormat(treeKey)
 
-            # Update Message
-            subnetMsgObj = QtWidgets.QTableWidgetItem(subnetMsg)
+            # Update Message and color if subnetMsg has error
+            if subnetMsg == "New tree detected.":  # If new tree detected
+                subnetMsgObj = QtWidgets.QTableWidgetItem(subnetMsg)
+                newColor = QtCore.Qt.green
+            elif subnetMsg:  # If subnet has error
+                subnetMsgObj = QtWidgets.QTableWidgetItem(subnetMsg + "Consider reimporting.")
+                newColor = QtCore.Qt.yellow
+            else:  # if tree exists in scene and no error
+                subnetMsgObj = QtWidgets.QTableWidgetItem("Tree subnet exists in scene.")
+
+            # Update mesage
             self.ui.tableOfFoldersOnDisk.setItem(currentRow, 2, subnetMsgObj)
             # Update color
-            if newColor:
-                for col in range(0, 3):
-                    tableItem = self.ui.tableOfFoldersOnDisk.item(currentRow, col)
-                    tableItem.setForeground(newColor)
+            for col in range(0, 3):
+                tableItem = self.ui.tableOfFoldersOnDisk.item(currentRow, col)
+                tableItem.setForeground(newColor)
 
             currentRow += 1
 
@@ -290,48 +373,39 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
     def visualizeTreeSubnetTable(self):
         """ Updates messages according to fbxs detected. Changes row colors. """
         tableOfFoldersOnDiskContents = self.getTableContents(self.ui.tableOfFoldersOnDisk)
-        tableOfTreeSubnetsContents = self.getTableContents(self.ui.tableOfTreeSubnets)
-
-        if len(tableOfFoldersOnDiskContents) == 0:
-            self.populateTreeSubnetTable()
-            return
+        # Only get tree subnet contents if not empty at first
+        if not self.ui.tableOfTreeSubnets.item(0, 1):
+            tableOfTreeSubnetsContents = OrderedDict()
+        else:
+            tableOfTreeSubnetsContents = self.getTableContents(self.ui.tableOfTreeSubnets)
 
         # Check fbx count to geo count
         currentRow = 0
         for treeKey, valueList in tableOfTreeSubnetsContents.items():
+            # Default color
+            newColor = QtCore.Qt.lightGray
+            subnetMsg = None
             # If it is a new tree
             if treeKey in tableOfFoldersOnDiskContents.keys():
-                newColor = False
-                subnetMsg = None
                 # Check if fbx count is different
                 tableDirFbxText = tableOfFoldersOnDiskContents[treeKey][0]
                 tableTreeSubnetFbxText = tableOfTreeSubnetsContents[treeKey][0]
                 if tableDirFbxText[0] != tableTreeSubnetFbxText[0]:
-                    subnetMsg = "Fbx count is different from scene. Consider reimporting."
-                    newColor = QtCore.Qt.yellow
+                    subnetMsg = str(subnetMsg or "") + "Fbx count is different from scene. "
 
-                # Update Message
-                if subnetMsg:
-                    subnetMsgObj = QtWidgets.QTableWidgetItem(subnetMsg)
-                    self.ui.tableOfTreeSubnets.setItem(currentRow, 2, subnetMsgObj)
-                # Update color
-                if newColor:
-                    for col in range(0, 3):
-                        tableItem = self.ui.tableOfTreeSubnets.item(currentRow, col)
-                        tableItem.setForeground(newColor)
+            # Check if matnet is formatted correctly
+            subnetMsg = str(subnetMsg or "") + self.checkMatnetFormat(treeKey)
 
-                currentRow += 1
+            # Update Message
+            if subnetMsg:
+                subnetMsgObj = QtWidgets.QTableWidgetItem(subnetMsg + "Consider reimporting.")
+                self.ui.tableOfTreeSubnets.setItem(currentRow, 2, subnetMsgObj)
+                newColor = QtCore.Qt.yellow
+            for col in range(0, 3):
+                tableItem = self.ui.tableOfTreeSubnets.item(currentRow, col)
+                tableItem.setForeground(newColor)
 
-        # TODO DETECT MATERIAL NOT FORMATTED CORRECTLY. ADD MESSAGE
-        # Check if formatted correctly
-        for treeKey, valueList in tableOfTreeSubnetsContents.items():
-            treeSubnet = hou.node("/obj/{TREEKEY}".format(TREEKEY=treeKey))
-            for child in treeSubnet:
-                matnet = child if child.type().name() == "matnet" else None
-            if matnet.name() != "{TREEKEY}_matnet".format(TREEKEY=treeKey) or not matnet:
-                treeKeyMessage = "Matnet. Consider reimporting."
-            else:
-                treeKeyMessage = None
+            currentRow += 1
 
         # Column width
         self.formatColumnWidth(self.ui.tableOfTreeSubnets)
@@ -341,12 +415,31 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         header = uiTable.horizontalHeader()
         header.setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
 
-    def noBox(self):
+    def checkMatnetFormat(self, treeKey):
+        treeSubnet = hou.node("/obj/{TREEKEY}".format(TREEKEY=treeKey))
+        matnet = None
+        msg = ""
+        for child in treeSubnet.children():
+            if child.type().name() == "matnet":
+                matnet = child
+        if not matnet:  # If matnet does not exist
+            msg = "Matnet does not exist. "
+        elif matnet.name() != "{TREEKEY}_matnet".format(TREEKEY=treeKey):
+            msg = "Matnet may not be correctly formatted. "
+        return msg
+
+    def onReimportExistingSubnetsClicked(self):
+        """ Enable/Disable the drop down combo box according to reimport existing subnet check box """
+        state = self.ui.reimportExistingSubnets.isChecked()
+        self.ui.reimportOptions.setEnabled(state)
+
+    def noTreesInTableBox(self):
+        """ Message for if trees in Directory table is empty """
         dialog = QtWidgets.QMessageBox()
         dialog.setIcon(QtWidgets.QMessageBox.Information)
 
-        dialog.setWindowTitle("Error")
-        dialog.setText("message")
+        dialog.setWindowTitle("Error: No Directory Specified")
+        dialog.setText("Please enter a valid path or browse to directory.")
 
         dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
         dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
@@ -358,20 +451,13 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         else:
             return False
 
-    def confirmationBox(self, itemsToImport):
+    def noSelectionBox(self):
         dialog = QtWidgets.QMessageBox()
         dialog.setIcon(QtWidgets.QMessageBox.Information)
 
-        if itemsToImport:
-            title = "Proceed With Fbx Import?"
-            treeTxt = "trees" if len(itemsToImport) > 1 else "tree"
-            message = "Tree Subnets to import: " \
-                      "{TREETXT} {JOIN1}, and {JOIN2}.".format(TREETXT=treeTxt,
-                                                               JOIN1=", ".join(itemsToImport[:-1]),
-                                                               JOIN2=itemsToImport[-1])
-        else:
-            title = "Error: No Trees Selected"
-            message = "No trees Selected. Please select items to import"
+        title = "Info: No Trees Selected"
+        message = "No trees Selected. Please select items to import or " \
+                  "uncheck '"'Only Import Selected Folders'"'."
 
         dialog.setWindowTitle(title)
         dialog.setText(message)
@@ -386,15 +472,29 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         else:
             return False
 
-    def noTreesInTableBox(self):
-        """ Message for if trees in Directory table is empty """
+    def confirmationBox(self, treeDicttoImport):
+        """ Message Box for confirmation when import fbx button is executed """
         dialog = QtWidgets.QMessageBox()
         dialog.setIcon(QtWidgets.QMessageBox.Information)
 
-        dialog.setWindowTitle("Error: No Directory Specified")
-        dialog.setText("Please enter a valid path or browse to directory.")
+        if treeDicttoImport:
+            title = "Confirm: Proceed With Fbx Import?"
+            treeKeyList = list(treeDicttoImport.keys())
+            if len(treeDicttoImport) > 1:
+                countTxt = "Subnets"
+                message = "{COUNTTXT} to import: " \
+                          "{JOIN1}, and {JOIN2}.".format(COUNTTXT=countTxt,
+                                                         JOIN1=", ".join(treeKeyList[:-1]),
+                                                         JOIN2=treeKeyList[-1])
+            else:
+                countTxt = "Subnet"
+                message = "{COUNTTXT} to import: " \
+                          "{JOIN1}.".format(COUNTTXT=countTxt, JOIN1=treeKeyList[0])
 
-        dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        dialog.setWindowTitle(title)
+        dialog.setText(message)
+
+        dialog.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
         dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
 
         ret = dialog.exec_()
@@ -421,25 +521,38 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
 
         # Check if only import selected folders is checked
         if self.ui.onlyImportSelectedFolders.isChecked():
+            # Check if nothing is selected while "only import selected folders" is checked
+            if len(rowItems) == 0:
+                self.noSelectionBox()
+                return
             for rowItem in rowItems:
                 rowIndex = rowItem.row()
                 itemsToImport.append(allTreeKeysFromTable[rowIndex])
         else:
             fbxImportFormat = fbxSubnet.getFbxFilesList(self.directoryPath)[0]
-            itemsToImport = fbxImportFormat.keys()
-        # Check if reimport existing tree subnets is checked
-        if not self.ui.reimportExistingTreeSubnets.isChecked():
-            # Get all created subnets in obj
-            tableOfTreeSubnetsContents = self.getTableContents(self.ui.tableOfTreeSubnets)
-            existingTreeSubnetNames = list(tableOfTreeSubnetsContents.keys())
-            # Delete existing tree subnet name from dictionary to import
-            for existingTreeSubnetName in existingTreeSubnetNames:
-                if existingTreeSubnetName in itemsToImport:
-                    itemsToImport.remove(existingTreeSubnetName)
+            itemsToImport = list(fbxImportFormat.keys())
 
-        # Message Box: Check if items to import is empty
+        # If reimport existing tree subnets is checked, only remove specified from list
+        if self.ui.reimportExistingSubnets.isChecked():
+            if self.ui.reimportOptions.currentIndex() == 0:  # All existing subnets
+                pass
+            elif self.ui.reimportOptions.currentIndex() == 1:  # Recommended Subnets Only
+                # Remove from list, subnets that are fine
+                for rowIndex in range(0, self.ui.tableOfTreeSubnets.rowCount()):
+                    cd = self.ui.tableOfTreeSubnets.item(rowIndex, 0).foreground().color().name()
+                    treeSubnetName = self.ui.tableOfTreeSubnets.item(rowIndex, 0).text()
+                    if cd == "#c0c0c0" and treeSubnetName in itemsToImport:  # '#c0c0c0' is lightGray
+                        itemsToImport.remove(treeSubnetName)
+        else:  # If reimport existing tree subnets is unchecked, remove subnets from list
+            for rowIndex in range(0, self.ui.tableOfTreeSubnets.rowCount()):
+                treeSubnetName = self.ui.tableOfTreeSubnets.item(rowIndex, 0).text()
+                if treeSubnetName in itemsToImport:
+                    itemsToImport.remove(treeSubnetName)
+
+        # If itemsToImport is empty after removing existing subnets, meaning all subnets already in scene
+        # message box and exit. Do not move on to import format dict phase
         if not itemsToImport:
-            self.confirmationBox(itemsToImport)
+            self.treesAlreadyImportedBox()
             return
 
         # Get fbx formatted dictionary for all items in directory path
@@ -452,9 +565,37 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
 
         return treeDicttoImport
 
+    def treesAlreadyImportedBox(self):
+        """ Message Box for confirmation when import fbx button is executed """
+        dialog = QtWidgets.QMessageBox()
+        dialog.setIcon(QtWidgets.QMessageBox.Information)
+
+        dialog.setWindowTitle("Info: Trees Already in Scene")
+        dialog.setText("Specified trees already exists in scene. "
+                       "Check '"'Reimport Existing Subnets'"' or "
+                       "import new trees.")
+
+        dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
+
+        ret = dialog.exec_()
+
+        if ret == dialog.Ok:
+            return True
+        else:
+            return False
+
     def exeImportFbx(self):
         """ Press Import Fbx button """
         treeDicttoImport = self.formatTreeDictToImport()
+        # Quit if empty dict
+        if not treeDicttoImport:
+            return
+
+        # Message Box: Import Fbx confirmation
+        confirmToImport = self.confirmationBox(treeDicttoImport)
+        if not confirmToImport:
+            return
 
         convertToYup = self.ui.convertToYup.isChecked()
         treeSubnetsFromDir = execute.treeSubnetsFromDir(treeDicttoImport,
@@ -463,11 +604,13 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         # Check reset transformations and match size
         resetTransforms = self.ui.resetTransformations.isChecked()
         matchSize = self.ui.matchSize.isChecked()
-
+        genRsMatandAssign = self.ui.genRsMatandAssign.isChecked()
         execute.treeSubnetsReformat(treeSubnetsFromDir,
                                     resetTransforms=resetTransforms,
-                                    matchSize=matchSize)
+                                    matchSize=matchSize,
+                                    genRsMatandAssign=genRsMatandAssign)
 
-
-
-
+        # Reset tables and visualizations
+        self.populateTreeSubnetTable()
+        self.visualizeTreeSubnetTable()
+        self.visualizeTreeDirTable()
