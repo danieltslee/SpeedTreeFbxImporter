@@ -32,7 +32,7 @@ AppleTree                     # Example of AppleTree Folder
 ├── Bark.png                  # fbx file
 └── Leaf.png                  # Textures
 ```
-Example of a folder structure:
+Example of a folder structure. Folders may contain any number of subdirectories:
 ```
 FolderWithAllMyTrees          # Folder
 ├── FruitTrees                # Folder
