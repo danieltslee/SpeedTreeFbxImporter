@@ -53,8 +53,10 @@ FolderWithAllMyTrees          # Folder
 └── MapleTree                 # Folder with SpeedTree assets
 ```
 ### Script Location
-> Place SpeedTreeAssetGenerator folder in $HOUDINI_USER_PREF_DIR/python3.7libs . Create the folder if missing.  
+> Add SpeedTreeAssetGenerator folder $HOUDINI_USER_PREF_DIR/python3.7libs . See [https://www.sidefx.com/docs/houdini/hom/locations.html](url) for docs on Python script locations.
 > For Gnomon, place SpeedTreeAssetGenerator folder in Z:/houdini19.0/python3.7libs
+> Add SpeedTreeFbxImporterByDaniel.pypanel to python_panels directory. See [https://www.sidefx.com/docs/houdini/ref/windows/pythonpaneleditor.html](https://www.sidefx.com/docs/houdini/ref/windows/pythonpaneleditor.html) for docs on Python Panel Editor
+> For Gnomon, place SpeedTreeFbxImporterByDaniel.pypanel folder in Z:/houdini19.0/python_panels
 ### Houdini Setup
 > This tool is accessed through a dockable Python Panel in a Houdini session.
 
