@@ -62,11 +62,11 @@ FolderWithAllMyTrees          # Folder
 
 1. Add a python panel.
 
-![This is an image](SpeedTreeAssetGenerator/pythonPanelLocation.png)
+![This is an image](images/pythonPanelLocation.png)
 
 2. Select SpeedTree Fbx Importer by Daniel in the drop down menu.
 
-![This is an image](SpeedTreeAssetGenerator/pythonPanelDropDown.png)
+![This is an image](images/pythonPanelDropDown.png)
 ## Notes
 Importing SpeedTree fbxs automatically creates and assigns primitive groups according to material. Do not change name of the group nodes and group names. Do not change the name of texture files. They match the group names by default.
 ## Task List
