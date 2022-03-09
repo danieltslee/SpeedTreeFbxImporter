@@ -10,8 +10,7 @@ from . import redshiftProxy
 from pathlib import Path
 
 
-def treeSubnetsFromDir(fbxImportFormat,
-                       convertToYup=False):
+def treeSubnetsFromDir(fbxImportFormat, convertToYup=False):
     """
     Creates subnets from directory. One subnet will be created for each folder containing fbxs
     :param directory: Folder which contains fbxs or subfolders containing the fbx files
