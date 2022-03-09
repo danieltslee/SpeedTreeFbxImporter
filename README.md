@@ -23,7 +23,16 @@ The importer will import subnets with this structure into the Houdini scene
 	
 ## Setup
 ### Folder Setup
-To run this project, the assets on disk must be structured like this. Subdirectories will also be included in search.
+> To run this project, each set of SpeedTree assets must live in the same directory.
+```
+AppleTree                     # Example of AppleTree Folder
+├── AppleTree_var1.fbx        # fbx file
+├── AppleTree_var1.fbx        # fbx file
+├── AppleTree_var1.fbx        # fbx file
+├── Bark.png                  # fbx file
+└── Leaf.png                  # Textures
+
+Example of a folder structure:
 ```
 FolderWithAllMyTrees          # Folder
 ├── FruitTrees                # Folder
@@ -41,5 +50,8 @@ FolderWithAllMyTrees          # Folder
 ├── Oak                       # Folder with SpeedTree assets
 └── MapleTree                 # Folder with SpeedTree assets
 ```
+### Houdini Setup
+> This tool is accessed through a dockable Python Panel in a Houdini session.
+
 
 
