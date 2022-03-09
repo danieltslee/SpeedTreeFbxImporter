@@ -35,7 +35,7 @@ def AssignMaterials(treeSubnet, matnetName, resetTransforms=True, matchSize=True
         # Add nodes
         addedNodes = ["pack", "output"]
         if matchSize:
-            addedNodes.insert(1, "matchsize")
+            addedNodes.insert(0, "matchsize")
         if assignMat:
             addedNodes.insert(0, "attribwrangle")
         # Prefix of new nodes
