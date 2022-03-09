@@ -5,6 +5,7 @@ This tool imports assets generated from SpeedTree into Houdini. Imported assets 
 * [General Info](#general-info)
 * [Requirements](#requirements)
 * [Setup](#setup)
+* [Notes](#notes)
 * [Task List](#task-list)
 
 ## General Info
@@ -64,6 +65,9 @@ FolderWithAllMyTrees          # Folder
 2. Select SpeedTree Fbx Importer by Daniel in the drop down menu.
 
 ![This is an image](SpeedTreeAssetGenerator/pythonPanelDropDown.png)
+## Notes
+Importing SpeedTree fbxs automatically creates and assigns primitive groups according to material. Do not change name of the group nodes and group names.  
+Do not change the name of texture files. They match the group names by default.
 ## Task List
 - [] Make compatible with versions before Houdini 19.0
 - [] Support textures other than png
