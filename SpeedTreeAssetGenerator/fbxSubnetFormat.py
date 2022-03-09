@@ -12,7 +12,11 @@ def AssignMaterials(treeSubnet, matnetName, resetTransforms=True, matchSize=True
     """ Creates s@shop_materialpath attribute to existing primitive groups
     Returns formatted Tree Subnet """
 
+    # Add nodes to geometry nodes
     for treeGeo in treeSubnet.children():
+        # Define treeGeo network
+        treeGeoNet = cnn.MyNetwork(treeGeo)
+
         # Bypass matnets, only run on geo
         if treeGeo.type().name() == "matnet" or treeGeo.type().name() == "shopnet":
             continue
@@ -22,9 +26,6 @@ def AssignMaterials(treeSubnet, matnetName, resetTransforms=True, matchSize=True
             treeGeo.parm("tx").revertToDefaults()
             treeGeo.parm("ty").revertToDefaults()
             treeGeo.parm("tz").revertToDefaults()
-
-        # Define treeGeo network
-        treeGeoNet = cnn.MyNetwork(treeGeo)
 
         # Clean old sops if any
         treeGeoNet.cleanNetwork("material", "pack", "output", method="type")
@@ -81,6 +82,18 @@ foreach (string group; groups) {{
 
     return treeSubnet
 
+"""
+def lodFormat(treeGeo):
+    firstOutputLOD = treeGeo.outputs()[0]
+    firstOutputLODNet = cnn.MyNetwork(firstOutputLOD)
+    groupNodes = firstOutputLODNet.findNodes("group", method="type")
+    if groupNodes:
+        treeGeoNet = cnn.MyNetwork(treeGeo)
+        lastNode = treeGeoNet.findLastNode()
+        copiedGroupNodes = hou.copyNodesTo(tuple(groupNodes), treeGeo)
+        treeGeoNet.wireNodes(copiedGroupNodes, lastNode)
+        treeGeo.layoutChildren(vertical_spacing=0.35)
+"""
 
 def materialDirectory(treeSubnet):
     """
@@ -102,7 +115,6 @@ def materialDirectory(treeSubnet):
 
     return fileNodeDirPath
 
-
 def texturePathTemplate(matDir, materialName, extension, texType=""):
     """
     Returns texture path of texture. Assumes that material name has _MAT
@@ -121,14 +133,12 @@ def texturePathTemplate(matDir, materialName, extension, texType=""):
                                                        TEXTYPE=texType,
                                                        EXTENSION=extension)
 
-
 def deleteMatnet(treeSubnet):
     """ Deletes matnet or shopnet in subnet """
     for child in treeSubnet.children():
         if child.type().name() == "matnet" or child.type().name() == "shopnet":
             child.destroy()
     return treeSubnet
-
 
 def createMatnet(treeSubnet, matnetName):
     """
@@ -143,20 +153,23 @@ def createMatnet(treeSubnet, matnetName):
     # Create Matnet
     treeMatnet = treeSubnet.createNode("matnet", matnetName)
 
-    # Query first tree geo node in subnet
-    treeGeo = treeSubnet.children()[0]
-    treeGeoNet = cnn.MyNetwork(treeGeo)
+    # Query first tree geo node in subnet. Groups in this treeGeo wil determine materials
+    treeGeos = treeSubnet.children()
+    allGroupMaterialNames = []
+    for treeGeo in treeGeos:
+        treeGeoNet = cnn.MyNetwork(treeGeo)
 
-    # Create Redshift material networks based on existing primitive groups
-    groupNodes = treeGeoNet.findNodes("group", method="name")
-    groupNameParms = [groupNode.parm("crname") for groupNode in groupNodes]
-    groupMaterials = [groupNameParm.eval().replace("_group", "") for groupNameParm in groupNameParms]
+        # Create Redshift material networks based on existing primitive groups
+        groupNodes = treeGeoNet.findNodes("group", method="type")
+        groupNameParms = [groupNode.parm("crname") for groupNode in groupNodes]
+        groupMaterials = [groupNameParm.eval().replace("_group", "") for groupNameParm in groupNameParms]
+        allGroupMaterialNames.extend(groupMaterials)
 
     # Get path of the materials
     matDir = materialDirectory(treeSubnet)
 
     # Initialize Redshift Material Builders
-    for materialName in groupMaterials:
+    for materialName in allGroupMaterialNames:
         rsmb = treeMatnet.createNode("redshift_vopnet", materialName)
         rsmbOut = rsmb.children()[0]
         shader = rsmb.children()[1]
@@ -176,6 +189,10 @@ def createMatnet(treeSubnet, matnetName):
         normalVop.setParms({"tex0": normalPath})
         # Create Bump Vop
         bumpVop = rsmb.createNode("redshift::BumpMap")
+        bumpVop.setParms({"inputType": "Tangent-Space Normal"})
+        # Shader Parms
+        shader.setParms({"refl_weight": 0.01})
+        shader.setParms({"refl_brdf": "GGX"})
         # Connect Diffuse
         shader.setInput(0, colorVop, 0)
         if "leaf" in materialName.lower() or "leaves" in materialName.lower():

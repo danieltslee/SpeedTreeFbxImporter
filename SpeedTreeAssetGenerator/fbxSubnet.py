@@ -71,7 +71,6 @@ def importSpeedTreeFbx(treeSubnetName, fbxFilePathsList, convertToYup=False):
         action = "Created"
 
     # Import Fbx geo and collapse into subnet
-    subnetGeos = []
     for fbxFile in fbxFilePathsList:
         importedSubnet, importMsgs = hou.hipFile.importFBX(fbxFile,
                                                            import_cameras=False,
@@ -90,33 +89,44 @@ def importSpeedTreeFbx(treeSubnetName, fbxFilePathsList, convertToYup=False):
                                                            create_sibling_bones=False)
 
         mySubnet = classNodeNetwork.MyNetwork(importedSubnet)
-        mySubnet.cleanNetwork("shopnet", method="type")
-        subnetChildren = mySubnet.extractChildren()
+        mySubnet.cleanNetwork("shopnet", "matnet", method="type")
 
-        for subnetChild in subnetChildren:
-            subnetGeos.append(subnetChild)
+        """# Rename LOD nodes if existing
+        treeSubnetGeos = [node for node in importedSubnet.children() if node.type().name() == "geo"]
+        LODGeos = [geo for geo in treeSubnetGeos if "lod" in geo.name().lower()]
+        if LODGeos:
+            for LODGeo in LODGeos:
+                LODGeo.setName(LODGeo.input(0).name() + "_" + LODGeo.name())
+        """
+        # Set treeSubnet if the subnet already exists in obj. Move child nodes to treeSubnet
+        objChildrenNames = [child.name() for child in obj.children()]
+        if treeSubnetName in objChildrenNames:
+            treeSubnet = hou.node("/obj/{TREESUBNETNAME}".format(TREESUBNETNAME=treeSubnetName))
+            hou.moveNodesTo(importedSubnet.children(), treeSubnet)
+            importedSubnet.destroy()
+        else:  # Set treeSubnet if it doesn't exist yet
+            importedSubnet.setName(treeSubnetName)
+            treeSubnet = importedSubnet
 
-        importedSubnet.destroy()
 
-    # Collapse geo nodes into subnet, name it treeName
-    collapsedSubnet = obj.collapseIntoSubnet(subnetGeos, treeSubnetName)
+
     # Move to old position if exists
     if oldTreeSubnet:
-        collapsedSubnet.setPosition(oldTreeSubnetPos)
+        treeSubnet.setPosition(oldTreeSubnetPos)
     # Put in network box
     if currentNetworkBox:
-        currentNetworkBox.addNode(collapsedSubnet)
+        currentNetworkBox.addNode(treeSubnet)
     # Layout children
-    collapsedSubnet.layoutChildren(vertical_spacing=0.35)
+    treeSubnet.layoutChildren(vertical_spacing=0.35)
     # Set subnet color
     subnetColor = hou.Color((.71, .518, .004))
-    collapsedSubnet.setColor(subnetColor)
+    treeSubnet.setColor(subnetColor)
     # collapsedSubnet set creator state
-    collapsedSubnet.setCreatorState("SpeedTree Asset Generator by Daniel")
+    treeSubnet.setCreatorState("SpeedTree Asset Generator by Daniel")
 
     # Message
     actionMessage = "{ACTION} Tree Subnet: {TREESUBNETNAME}".format(ACTION=action, TREESUBNETNAME=treeSubnetName)
 
-    return collapsedSubnet, actionMessage
+    return treeSubnet, actionMessage
 
 
