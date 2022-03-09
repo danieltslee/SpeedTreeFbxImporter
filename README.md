@@ -76,7 +76,8 @@ FolderWithAllMyTrees          # Folder
 ![This is an image](images/pythonPanelDropDown.png)
 ## Notes
 SpeedTree fbxs automatically assigns primitive groups according to material.  
-*Do not change name of the group nodes and group names. Do not change the name of texture files. If materials are not rendering, consider reimporting.*
+*Do not change name of the group nodes and group names. Do not change the name of texture files. If materials are not rendering, consider reimporting.*  
+*After running the Importer in Houdini, if the number of geos do not match the number of FBXs on disk. You may have exported SpeedTree generated models using the Export Game tool. Re-export using Export Mesh tool and reimport in Houdini.*
 ## Task List
 - [ ] Make compatible with assets other than fbx
 - [ ] Make compatible with versions before Houdini 19.0
