@@ -5,6 +5,7 @@ This tool imports assets generated from SpeedTree into Houdini. Imported assets 
 * [General info](#general-info)
 * [Requirements](#requirements)
 * [Setup](#setup)
+* [Task List](#taskList)
 
 ## General info
 The importer will import subnets with this structure into the Houdini scene:
@@ -51,7 +52,7 @@ FolderWithAllMyTrees          # Folder
 └── MapleTree                 # Folder with SpeedTree assets
 ```
 ### Script Location
-> Place SpeedTreeAssetGenerator folder in `$HOUDINI_USER_PREF_DIR`/python3.7libs . Create the folder if missing.  
+> Place SpeedTreeAssetGenerator folder in $HOUDINI_USER_PREF_DIR/python3.7libs . Create the folder if missing.  
 > For Gnomon, place SpeedTreeAssetGenerator folder in Z:/houdini19.0/python3.7libs
 ### Houdini Setup
 > This tool is accessed through a dockable Python Panel in a Houdini session.
@@ -63,5 +64,6 @@ FolderWithAllMyTrees          # Folder
 2. Select SpeedTree Fbx Importer by Daniel in the drop down menu.
 
 ![This is an image](SpeedTreeAssetGenerator/pythonPanelDropDown.png)
-
-
+## Task List
+- [] Make compatible with versions before Houdini 19.0
+- [] Support textures other than png
