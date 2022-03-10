@@ -56,6 +56,9 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         # Right click menu table of tree subnets in scene
         self.ui.tableOfTreeSubnets.customContextMenuRequested.connect(self.tableRightClickMenuSCENE)
 
+        # Refresh Tables Button
+        self.ui.refreshTables.pressed.connect(partial(self.refreshTablesButton))
+
         # Import Fbx Button
         self.ui.importFbxExecute.pressed.connect(partial(self.exeImportFbx))
 
@@ -196,11 +199,6 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         clearSelection.triggered.connect(lambda: self.clearSelectionAction(self.ui.tableOfFoldersOnDisk))
         menu.addAction(clearSelection)
 
-        # Refresh table action
-        refreshTable = QtWidgets.QAction("Refresh Table")
-        refreshTable.triggered.connect(lambda: self.refreshTableAction(self.ui.tableOfFoldersOnDisk))
-        menu.addAction(refreshTable)
-
         menu.exec_(self.ui.tableOfFoldersOnDisk.viewport().mapToGlobal(pos))
 
     def tableRightClickMenuSCENE(self, pos):
@@ -218,11 +216,6 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         clearSelection = QtWidgets.QAction("Clear Selection")
         clearSelection.triggered.connect(lambda: self.clearSelectionAction(self.ui.tableOfTreeSubnets))
         menu.addAction(clearSelection)
-
-        # Refresh table action
-        refreshTable = QtWidgets.QAction("Refresh Table")
-        refreshTable.triggered.connect(lambda: self.refreshTableAction(self.ui.tableOfTreeSubnets))
-        menu.addAction(refreshTable)
 
         menu.exec_(self.ui.tableOfTreeSubnets.viewport().mapToGlobal(pos))
 
@@ -251,14 +244,13 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
     def clearSelectionAction(self, uiTable):
         uiTable.clearSelection()
 
-    def refreshTableAction(self, uiTable):
-        firstHeader = uiTable.horizontalHeaderItem(0).text()
-        if firstHeader == "Tree Name":
-            self.visualizeTreeDirTable()
-        elif firstHeader == "Tree Subnet":
-            subnetsExists = self.populateTreeSubnetTable()
-            if subnetsExists:
-                self.visualizeTreeSubnetTable()
+    def refreshTablesButton(self):
+        subnetsExists = self.populateTreeSubnetTable()
+        if subnetsExists:
+            self.visualizeTreeSubnetTable()
+        self.directoryPath = self.ui.directoryPath.text()
+        self.populateTreeDirTable(self.directoryPath)
+        self.visualizeTreeDirTable()
 
     def populateTreeSubnetTable(self):
         """ Detects tree subnets in scene and populates table. Returns True if there are contents. """
@@ -614,3 +606,5 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         self.populateTreeSubnetTable()
         self.visualizeTreeSubnetTable()
         self.visualizeTreeDirTable()
+
+
