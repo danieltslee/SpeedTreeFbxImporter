@@ -39,7 +39,8 @@ AppleTree                     # Example of AppleTree Folder
 ├── AppleTree_var3.fbx        # fbx file
 ├── Bark.png                  # Texture
 └── Leaf.png                  # Texture
-``` ![This is an image](images/AppleTreeExample.png)
+``` 
+![This is an image](images/AppleTreeExample.png)
 > Example of a folder structure. Folders may contain any number of subdirectories:
 ```
 FolderWithAllMyTrees          # Folder
