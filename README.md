@@ -4,6 +4,7 @@ This tool imports assets generated from SpeedTree into Houdini. Imported assets 
 ## Table of contents
 * [General Info](#general-info)
 * [Requirements](#requirements)
+* [Exporting From SpeedTree](#exporting-from-speedtree)
 * [Setup](#setup)
 * [Notes](#notes)
 * [Task List](#task-list)
@@ -22,7 +23,12 @@ The importer will import subnets with this structure into the Houdini scene:
 * Houdini 19.0 or above
 * Redshift in Houdini
 * Some setup (see Setup)
-	
+## Exporting From SpeedTree
+> Export SpeedTree generated models using the Export Mesh tool in SpeedTree. Ensure that *Group By* is set to *Hierachy* and hit *OK*.  
+> ***Do not export the generated model using the Export to Game tool.***
+
+![This is an image](images/speedTreeExportMeshLocation.png)   ![This is an image](images/speedTreeExportMesh.png)
+
 ## Setup
 ### Folder Setup
 > To run this project, each set of SpeedTree assets must live in the same directory:
@@ -53,11 +59,11 @@ FolderWithAllMyTrees          # Folder
 └── MapleTree                 # Folder with SpeedTree assets
 ```
 ### Script Location
-> Add SpeedTreeAssetGenerator folder $HOUDINI_USER_PREF_DIR/python3.7libs . See [python locations](https://www.sidefx.com/docs/houdini/hom/locations.html) for docs on Python script locations.  
-> For Gnomon, place SpeedTreeAssetGenerator folder in Z:/houdini19.0/python3.7libs . Create the folder if it does not exist.  
+> Add **SpeedTreeAssetGenerator** folder $HOUDINI_USER_PREF_DIR/python3.7libs . See [python locations](https://www.sidefx.com/docs/houdini/hom/locations.html) for docs on Python script locations.  
+> For Gnomon, place **SpeedTreeAssetGenerator** folder in Z:/houdini19.0/python3.7libs . Create the folder if it does not exist.  
 > 
-> Add SpeedTreeFbxImporterByDaniel.pypanel to python_panels directory. See [python panel](https://www.sidefx.com/docs/houdini/ref/windows/pythonpaneleditor.html) for docs on Python Panel Editor.  
-> For Gnomon, place SpeedTreeFbxImporterByDaniel.pypanel in Z:/houdini19.0/python_panels . Create the folder if it does not exist.  
+> Add all contents of **python_panels** folder to python_panels directory. See [python panel](https://www.sidefx.com/docs/houdini/ref/windows/pythonpaneleditor.html) for docs on Python Panel Editor.  
+> For Gnomon, place all contents of **python_panels** folder in Z:/houdini19.0/python_panels . Create the folder if it does not exist.  
 ### Houdini Setup
 > This tool is accessed through a dockable Python Panel in a Houdini session.
 
@@ -69,8 +75,9 @@ FolderWithAllMyTrees          # Folder
 
 ![This is an image](images/pythonPanelDropDown.png)
 ## Notes
-SpeedTree fbxs automatically assigns primitive groups according to material.  
-*Do not change name of the group nodes and group names. Do not change the name of texture files. If materials are not rendering, consider reimporting.*
+- SpeedTree fbxs automatically assigns primitive groups according to material.  
+- *Do not change name of the group nodes and group names. Do not change the name of texture files. If materials are not rendering, consider reimporting.*  
+- *After running the Importer in Houdini, if the number of geos do not match the number of FBXs on disk. You may have exported SpeedTree generated models using the Export to Game tool. Re-export using Export Mesh tool and reimport in Houdini.*
 ## Task List
 - [ ] Make compatible with assets other than fbx
 - [ ] Make compatible with versions before Houdini 19.0
