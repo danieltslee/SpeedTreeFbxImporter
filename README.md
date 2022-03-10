@@ -31,14 +31,14 @@ The importer will import subnets with this structure into the Houdini scene:
 
 ## Setup
 ### Folder Setup
-> To run this project, each set of SpeedTree assets must live in the same directory:
+> To run this project, each set of SpeedTree generated models must live in the same directory. The example folder below, when imported using the tool, will create a subnet with 3 geometry nodes, each representing a fbx model:
 ```
 AppleTree                     # Example of AppleTree Folder
 ├── AppleTree_var1.fbx        # fbx file
-├── AppleTree_var1.fbx        # fbx file
-├── AppleTree_var1.fbx        # fbx file
-├── Bark.png                  # fbx file
-└── Leaf.png                  # Textures
+├── AppleTree_var2.fbx        # fbx file
+├── AppleTree_var3.fbx        # fbx file
+├── Bark.png                  # Texture
+└── Leaf.png                  # Texture
 ```
 > Example of a folder structure. Folders may contain any number of subdirectories:
 ```
