@@ -1,4 +1,4 @@
 *.pyc
 .idea/
 venv/
-*.md
+README.md
