@@ -3,8 +3,8 @@ API for creating tree scatter subnet
 """
 
 import hou
-from . import classNodeNetwork as cnn
-from . import helper
+import classNodeNetwork as cnn
+import helper
 
 def findNodeInList(nodeList, nodeType):
     """

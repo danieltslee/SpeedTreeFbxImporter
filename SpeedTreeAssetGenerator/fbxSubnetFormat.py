@@ -3,8 +3,8 @@ API for building formatting tree subnet built from fbx Subnet
 """
 
 import hou
-from . import classNodeNetwork as cnn
-from . import fbxSubnet
+import classNodeNetwork as cnn
+import fbxSubnet
 from PIL import Image
 
 

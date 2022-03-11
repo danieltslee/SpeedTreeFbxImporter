@@ -3,12 +3,10 @@ Execution functions
 """
 
 import hou
-from . import fbxSubnet
-from . import fbxSubnetFormat
-from . import treeScatterSubnet
-from . import redshiftProxy
-from pathlib import Path
-
+import fbxSubnet
+import fbxSubnetFormat
+import treeScatterSubnet
+import redshiftProxy
 
 def treeSubnetsFromDir(fbxImportFormat, convertToYup=False):
     """
@@ -136,8 +134,7 @@ def generateRedshiftProxy(treeSubnets, rsFolder,
     :param rsFolder: file directory in which the rs proxy files will be generated
     :return: None
     """
-    # Format directory path
-    rsFolder = Path(rsFolder)
+
 
     for treeSubnet in treeSubnets:
         redshiftProxy.createRedshiftProxy(treeSubnet, rsFolder,

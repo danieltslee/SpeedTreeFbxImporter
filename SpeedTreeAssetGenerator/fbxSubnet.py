@@ -4,8 +4,8 @@ API for building tree fbx subnet given SpeedTree Fbx imports
 
 import hou
 import os
-from . import classNodeNetwork
-from . import helper
+import classNodeNetwork
+import helper
 
 
 def getFbxFilesList(rootDir):

@@ -3,8 +3,8 @@ test python file
 """
 
 import hou
-from . import helper
-from . import execute
+import helper
+import execute
 
 def myFunc():
     # Get hip directory path

@@ -3,7 +3,7 @@ API for  creating .rs files in specified directory
 """
 
 import hou
-from . import classNodeNetwork as cnn
+import classNodeNetwork as cnn
 
 def createRedshiftProxy(treeSubnet, rsFolder,
                         createIntermediateDirectories=True,
