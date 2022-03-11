@@ -586,6 +586,14 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
             return False
 
     def exeImportFbx(self):
+        # Dummy Progress bar for
+        import time
+        for i in range(0, 100):
+            self.ui.progressBar.setValue(i)
+            time.sleep(1)
+
+        return  # DELETE
+
         """ Press Import Fbx button """
         treeDicttoImport = self.formatTreeDictToImport()
         # Quit if empty dict
@@ -614,3 +622,4 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         self.populateTreeSubnetTable()
         self.visualizeTreeSubnetTable()
         self.visualizeTreeDirTable()
+
