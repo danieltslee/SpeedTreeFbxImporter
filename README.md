@@ -31,16 +31,17 @@ The importer will import subnets with this structure into the Houdini scene:
 
 ## Setup
 ### Folder Setup
-> To run this project, each set of SpeedTree assets must live in the same directory:
+> To run this project, each set of SpeedTree generated models must live in the same directory in disk. The example folder below, when imported using the tool, will create a subnet with 3 geometry nodes, each representing a fbx model:
 ```
 AppleTree                     # Example of AppleTree Folder
 ├── AppleTree_var1.fbx        # fbx file
-├── AppleTree_var1.fbx        # fbx file
-├── AppleTree_var1.fbx        # fbx file
-├── Bark.png                  # fbx file
-└── Leaf.png                  # Textures
-```
-> Example of a folder structure. Folders may contain any number of subdirectories:
+├── AppleTree_var2.fbx        # fbx file
+├── AppleTree_var3.fbx        # fbx file
+├── Bark.png                  # Texture
+└── Leaf.png                  # Texture
+``` 
+![This is an image](images/AppleTreeExample.png)
+> Example of a folder structure on disk. Folders may contain any number of subdirectories:
 ```
 FolderWithAllMyTrees          # Folder
 ├── FruitTrees                # Folder
@@ -77,7 +78,7 @@ FolderWithAllMyTrees          # Folder
 ## Notes
 - SpeedTree fbxs automatically assigns primitive groups according to material.  
 - *Do not change name of the group nodes and group names. Do not change the name of texture files. If materials are not rendering, consider reimporting.*  
-- *After running the Importer in Houdini, if the number of geos do not match the number of FBXs on disk. You may have exported SpeedTree generated models using the Export to Game tool. Re-export using Export Mesh tool and reimport in Houdini.*
+- *After running the Importer in Houdini, if the number of geos do not match the number of FBXs on disk. You may have exported SpeedTree generated models using the Export to Game tool. Re-export from SpeedTree using Export Mesh tool and reimport in Houdini.*
 ## Task List
 - [ ] Make compatible with assets other than fbx
 - [ ] Make compatible with versions before Houdini 19.0
