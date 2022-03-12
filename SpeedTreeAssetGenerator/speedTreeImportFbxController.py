@@ -2,7 +2,6 @@ import hou
 import os
 from . import fbxSubnet
 from . import execute
-from . import helper
 from PySide2 import QtCore, QtUiTools, QtWidgets
 from functools import partial
 from collections import OrderedDict
