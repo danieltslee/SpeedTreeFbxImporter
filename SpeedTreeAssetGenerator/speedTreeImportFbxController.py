@@ -130,8 +130,6 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         self.formatColumnWidth(self.ui.tableOfFoldersOnDisk)
 
     def directoryPathEnter(self):
-        # Reformat Table
-        self.reformatClearedTable(self.ui.tableOfFoldersOnDisk)
         # Set directory path to new input
         self.directoryPath = self.ui.directoryPath.text()
         path = self.directoryPath
@@ -139,6 +137,11 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         if not os.path.isdir(path):
             self.invalidPathBox()
             return
+
+        # Refresh Tables
+        self.refreshTablesButton()
+        # Reformat Table
+        # self.clearTableAction(self.ui.tableOfFoldersOnDisk)
 
         self.populateTreeDirTable(self.directoryPath)
         # Visualise Tables
@@ -186,7 +189,7 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
 
         # Clear table action
         clearTable = QtWidgets.QAction("Clear Table")
-        clearTable.triggered.connect(lambda: self.reformatClearedTable(self.ui.tableOfFoldersOnDisk))
+        clearTable.triggered.connect(lambda: self.clearTableAction(self.ui.tableOfFoldersOnDisk))
         menu.addAction(clearTable)
 
         # Select all action
@@ -229,7 +232,7 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         simpleAdd(menu, action)
         return action
 
-    def reformatClearedTable(self, uiTable):
+    def clearTableAction(self, uiTable):
         """ Clears all rows but keeps columns in a table widget """
         uiTable.clearContents()
         # Clear rows
