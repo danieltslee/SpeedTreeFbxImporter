@@ -1,6 +1,7 @@
 import hou
 import os
 from . import fbxSubnet
+from . import fbxSubnetFormat
 from . import execute
 from PySide2 import QtCore, QtUiTools, QtWidgets
 from functools import partial
@@ -41,6 +42,10 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         # Detect tree subnets in scene
         self.populateTreeSubnetTable()
         self.visualizeTreeSubnetTable()
+
+        # Hide progress bar
+        self.ui.progressBar.setVisible(False)
+        self.ui.progressBarText.setVisible(False)
 
         # fbx import formatted dictionary
         self.fbxImportFormat = dict()
@@ -581,6 +586,8 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
 
     def exeImportFbx(self):
         """ Press Import Fbx button """
+        # Refresh Tables
+        self.refreshTablesButton()
         treeDicttoImport = self.formatTreeDictToImport()
         # Quit if empty dict
         if not treeDicttoImport:
@@ -591,22 +598,91 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         if not confirmToImport:
             return
 
-        convertToYup = self.ui.convertToYup.isChecked()
-        treeSubnetsFromDir = execute.treeSubnetsFromDir(treeDicttoImport,
-                                                        convertToYup=convertToYup)
+        # Hide import fbx button
+        self.ui.refreshTables.setVisible(False)
+        self.ui.importFbxExecute.setVisible(False)
+        # Unhide progress bar
+        self.ui.progressBar.setVisible(True)
+        self.ui.progressBarText.setVisible(True)
 
-        # Check reset transformations and match size
+        """val = 10000000
+        for i in range(0, val):
+            self.ui.progressBar.setValue(int(i/val * 100))
+            self.ui.progressBarText.setText("Percent is now " + str(int(i/val * 100)))"""
+        progressCalc = External()
+        progressCalc.countChanged.connect(self.onCountChanged)
+        progressCalc.start()
+        return
+
+        # Check boxes
+        convertToYup = self.ui.convertToYup.isChecked()
         resetTransforms = self.ui.resetTransformations.isChecked()
         matchSize = self.ui.matchSize.isChecked()
         genRsMatandAssign = self.ui.genRsMatandAssign.isChecked()
-        execute.treeSubnetsReformat(treeSubnetsFromDir,
-                                    resetTransforms=resetTransforms,
-                                    matchSize=matchSize,
-                                    genRsMatandAssign=genRsMatandAssign)
 
-        # Reset tables and visualizations
-        self.populateTreeSubnetTable()
-        self.visualizeTreeSubnetTable()
-        self.visualizeTreeDirTable()
+        # Creating Subnets API
+        createdTreeSubnets = []
+        importIteration = 0
+        for key, value in treeDicttoImport.items():
+            subnetName = key
+            fbxFilePaths = value
+            # Import Fbx
+            treeSubnet, progressMsg = execute.treeSubnetsFromDir(subnetName, fbxFilePaths,
+                                                                 convertToYup=convertToYup)
+            self.ui.progressBarText.setText(progressMsg)
+            if progressMsg.split()[0] == "Creating":
+                createdTreeSubnets.append(treeSubnet)
 
+            # Format Subnet
+            treeSubnet, progressMsg = execute.treeSubnetsReformat(treeSubnet,
+                                                                  resetTransforms=resetTransforms,
+                                                                  matchSize=matchSize,
+                                                                  genRsMatandAssign=genRsMatandAssign)
+            self.ui.progressBarText.setText(progressMsg)
+
+            # Progress Bar
+            percent = importIteration/len(treeDicttoImport) * 100
+            self.ui.progressBar.setValue(str(percent))
+            importIteration += 1
+
+        # Layout created subnets if there are new ones
+        if createdTreeSubnets:
+            obj = hou.node("/obj")
+            obj.layoutChildren(tuple(createdTreeSubnets), vertical_spacing=0.35)
+
+        # Hide import fbx button
+        self.ui.refreshTables.setVisible(True)
+        self.ui.importFbxExecute.setVisible(True)
+        # Unhide progress bar
+        self.ui.progressBar.setVisible(False)
+        self.ui.progressBarText.setVisible(False)
+
+        # Refresh Tables
+        self.refreshTablesButton()
+
+        # Clear Selection
+        self.clearSelectionAction(self.ui.tableOfFoldersOnDisk)
+        self.clearSelectionAction(self.ui.tableOfTreeSubnets)
+
+    def onButtonClick(self):
+        progressCalc = External()
+        progressCalc.countChanged.connect(self.onCountChanged)
+        progressCalc.start()
+
+    def onCountChanged(self, value):
+        self.ui.progressBar.setValue(value)
+
+class External(QtCore.QThread):
+    """
+    Runs a counter thread.
+    """
+    countChanged = QtCore.pyqtSignal(int)
+
+    def run(self):
+        import time
+        count = 0
+        while count < 50:
+            count += 1
+            time.sleep(1)
+            self.countChanged.emit(count)
 

@@ -10,68 +10,63 @@ from . import redshiftProxy
 from pathlib import Path
 
 
-def treeSubnetsFromDir(fbxImportFormat, convertToYup=False):
+def treeSubnetsFromDir(subnetName, fbxFilePaths, convertToYup=False):
     """
-    Creates subnets from directory. One subnet will be created for each folder containing fbxs
-    :param directory: Folder which contains fbxs or subfolders containing the fbx files
-    :return: List of hou.node tree subnet objects generated from directory
+    Creates a subnet from directory. A geo node will be added for each path.
+    :param subnetName: Name of subnet to be created
+    :param fbxFilePaths: List of fbx paths
+    :return: treeSubnet hou.node object, isNewSubnet boolean
     """
-    obj = hou.node("/obj")
+    subnetExists = hou.node("/obj/{SUBNETNAME}".format(SUBNETNAME=subnetName))
+    if subnetExists:
+        progressMsg = "Updating subnet {TREESUBNET}".format(TREESUBNET=subnetName)
+    else:
+        progressMsg = "Creating subnet {TREESUBNET}".format(TREESUBNET=subnetName)
+    print(progressMsg)
 
-    # Dictionary to Import
-    treeDicttoImport = fbxImportFormat
+    # Import Fbx
+    treeSubnet, actionMessage = fbxSubnet.importSpeedTreeFbx(subnetName, fbxFilePaths,
+                                                             convertToYup=convertToYup)
+    treeSubnet.setDisplayFlag(False)
 
-    treeSubnetsFromDir = []
+    # Adding new subnets to list
     createdTreeSubnets = []
-    for key in treeDicttoImport:
-        # Import fbx
-        subnetName = key
-        fbxFilePaths = treeDicttoImport[key]
-        treeSubnet, actionMessage = fbxSubnet.importSpeedTreeFbx(subnetName, fbxFilePaths,
-                                                                 convertToYup=convertToYup)
-        treeSubnet.setDisplayFlag(False)
-        print("{MSG}".format(MSG=actionMessage))
+    if actionMessage.split()[0] == "Created":
+        createdTreeSubnets.append(treeSubnet)
 
-        # If created, store in list
-        if actionMessage.split()[0] == "Created":
-            createdTreeSubnets.append(treeSubnet)
+    return treeSubnet, progressMsg
 
-        treeSubnetsFromDir.append(treeSubnet)
+def treeSubnetsReformat(treeSubnet, resetTransforms=True, matchSize=True, genRsMatandAssign=True):
+    """
+    Formats subnets which contain imported SpeedTree Fbxs
+    :param treeSubnet: treeSubnet hou.node obj to be formatted
+    :param resetTransforms: reset translations and rotations on geo level
+    :param matchSize: add match size node
+    :param genRsMatandAssign: assign redshift materials and assign materials
+    :return: formatted treeSubnet hou.node object
+    """
+    # Message in progress bar
+    if genRsMatandAssign:
+        progressMsg = "Formatting and creating materials for {TREESUBNET}"\
+            .format(TREESUBNET=treeSubnet.name())
+    else:
+        progressMsg = "Formatting {TREESUBNET}".format(TREESUBNET=treeSubnet.name())
+    print(progressMsg)
 
-    # Layout created tree subnets
-    if createdTreeSubnets:
-        obj.layoutChildren(tuple(createdTreeSubnets), vertical_spacing=0.35)
+    # Reformat treeSubnet
+    matnetName = treeSubnet.name() + "_matnet"
+    # Create Material Assignments
+    treeSubnet = fbxSubnetFormat.AssignMaterials(treeSubnet, matnetName,
+                                                 resetTransforms=resetTransforms,
+                                                 matchSize=matchSize,
+                                                 assignMat=genRsMatandAssign)
+    # Create Matnet
+    if genRsMatandAssign:
+        treeSubnet = fbxSubnetFormat.createMatnet(treeSubnet, matnetName)
+    # Layout treeSubnet
+    treeSubnet.layoutChildren(vertical_spacing=0.35)
 
-    # Spacer
-    print("")
-
-    return treeSubnetsFromDir
-
-
-def treeSubnetsReformat(treeSubnetList, resetTransforms=True, matchSize=True, genRsMatandAssign=True):
-
-    treeSubnetsReformatted = []
-    for treeSubnet in treeSubnetList:
-        # matnet name
-        matnetName = treeSubnet.name() + "_matnet"
-
-        # Create Material Assignments
-        treeSubnet = fbxSubnetFormat.AssignMaterials(treeSubnet, matnetName,
-                                                     resetTransforms=resetTransforms,
-                                                     matchSize=matchSize,
-                                                     assignMat=genRsMatandAssign)
-        # Create Matnet
-        if genRsMatandAssign:
-            treeSubnet = fbxSubnetFormat.createMatnet(treeSubnet, matnetName)
-            print("Materials Created for: " + treeSubnet.name())
-        print("Formatted: " + treeSubnet.name())
-
-        treeSubnet.layoutChildren(vertical_spacing=0.35)
-
-    treeSubnetsReformatted.append(treeSubnet)
-
-    return treeSubnetsReformatted
-
+    return treeSubnet, progressMsg
 
 def generateScatterSubnets(treeSubnets, hfGeoNodePath,
                            createGeoNode=False,

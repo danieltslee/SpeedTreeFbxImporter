@@ -90,13 +90,6 @@ def importSpeedTreeFbx(treeSubnetName, fbxFilePathsList, convertToYup=False):
         mySubnet = classNodeNetwork.MyNetwork(importedSubnet)
         mySubnet.cleanNetwork("shopnet", "matnet", method="type")
 
-        """# Rename LOD nodes if existing
-        treeSubnetGeos = [node for node in importedSubnet.children() if node.type().name() == "geo"]
-        LODGeos = [geo for geo in treeSubnetGeos if "lod" in geo.name().lower()]
-        if LODGeos:
-            for LODGeo in LODGeos:
-                LODGeo.setName(LODGeo.input(0).name() + "_" + LODGeo.name())
-        """
         # Set treeSubnet if the subnet already exists in obj. Move child nodes to treeSubnet
         objChildrenNames = [child.name() for child in obj.children()]
         if treeSubnetName in objChildrenNames:
