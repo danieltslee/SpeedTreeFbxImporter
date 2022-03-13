@@ -83,3 +83,4 @@ FolderWithAllMyTrees          # Folder
 - [ ] Make compatible with assets other than fbx
 - [ ] Make compatible with versions before Houdini 19.0
 - [ ] Support textures other than png
+- [ ] Support for render engines other than Redshift
