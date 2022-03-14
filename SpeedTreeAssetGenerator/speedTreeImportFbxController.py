@@ -654,12 +654,10 @@ class Worker(QtCore.QThread):
         super(Worker, self).__init__()
         self.treeDicttoImport = treeDicttoImport
         self.kwargs = kwargs
-        self.workingNow = True
 
     def run(self):
         self.treeSubnetAPI(self.treeDicttoImport, **self.kwargs)
         self.reformatUI(**self.kwargs)
-        self.workingNOw = False
 
     def treeSubnetAPI(self, treeDicttoImport, **kwargs):
         # Check box keyword arguments
@@ -674,9 +672,16 @@ class Worker(QtCore.QThread):
         for key, value in treeDicttoImport.items():
             subnetName = key
             fbxFilePaths = value
+
+            # Progress Bar
+            percent = (importIteration - 0.5) / len(treeDicttoImport) * 100
+            self.valueChanged.emit(int(percent))
+            self.textChanged.emit(progressMsg)
+
             # Import Fbx
             treeSubnet, progressMsg = execute.treeSubnetsFromDir(subnetName, fbxFilePaths,
                                                                  convertToYup=convertToYup)
+            # Position treeSubnet
             if progressMsg.split()[0] == "Creating":
                 createdTreeSubnets.append(treeSubnet)
                 try:
@@ -686,26 +691,15 @@ class Worker(QtCore.QThread):
                 except IndexError:
                     pass
 
-            # Layout created subnets if there are new ones
-            """if createdTreeSubnets:
-                obj = hou.node("/obj")
-                obj.layoutChildren(tuple(createdTreeSubnets), vertical_spacing=0.35)"""
-
             # Progress Bar
-            percent = (importIteration - 0.5) / len(treeDicttoImport) * 100
+            percent = (importIteration) / len(treeDicttoImport) * 100
             self.valueChanged.emit(int(percent))
             self.textChanged.emit(progressMsg)
-
             # Format Subnet
             treeSubnet, progressMsg = execute.treeSubnetsReformat(treeSubnet,
                                                                   resetTransforms=resetTransforms,
                                                                   matchSize=matchSize,
                                                                   genRsMatandAssign=genRsMatandAssign)
-
-            # Progress Bar
-            percent = (importIteration) / len(treeDicttoImport) * 100
-            self.valueChanged.emit(int(percent))
-            self.textChanged.emit(progressMsg)
 
             importIteration += 1
 
@@ -720,11 +714,15 @@ class Worker(QtCore.QThread):
         # Hide progress bar
         progressBar.setVisible(False)
         progressBarText.setVisible(False)
+
+        # Progress Bar and text reset
+        self.valueChanged.emit(0)
+        self.textChanged.emit("")
+
         # Show import fbx button
         refreshTables.setVisible(True)
         importFbxExecute.setVisible(True)
 
         # Refresh Tables
         refreshTablesButton()
-
 
