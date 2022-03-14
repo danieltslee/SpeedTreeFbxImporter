@@ -674,6 +674,11 @@ class Worker(QtCore.QThread):
             fbxFilePaths = value
 
             # Progress Bar
+            subnetExists = hou.node("/obj/{SUBNETNAME}".format(SUBNETNAME=subnetName))
+            if subnetExists:
+                progressMsg = "Updating subnet {TREESUBNET}".format(TREESUBNET=subnetName)
+            else:
+                progressMsg = "Creating subnet {TREESUBNET}".format(TREESUBNET=subnetName)
             percent = (importIteration - 0.5) / len(treeDicttoImport) * 100
             self.valueChanged.emit(int(percent))
             self.textChanged.emit(progressMsg)
@@ -692,14 +697,19 @@ class Worker(QtCore.QThread):
                     pass
 
             # Progress Bar
+            if genRsMatandAssign:
+                progressMsg = "Formatting and creating materials for {TREESUBNET}" \
+                    .format(TREESUBNET=subnetName)
+            else:
+                progressMsg = "Formatting {TREESUBNET}".format(TREESUBNET=subnetName)
             percent = (importIteration) / len(treeDicttoImport) * 100
             self.valueChanged.emit(int(percent))
             self.textChanged.emit(progressMsg)
             # Format Subnet
-            treeSubnet, progressMsg = execute.treeSubnetsReformat(treeSubnet,
-                                                                  resetTransforms=resetTransforms,
-                                                                  matchSize=matchSize,
-                                                                  genRsMatandAssign=genRsMatandAssign)
+            execute.treeSubnetsReformat(treeSubnet,
+                                        resetTransforms=resetTransforms,
+                                        matchSize=matchSize,
+                                        genRsMatandAssign=genRsMatandAssign)
 
             importIteration += 1
 
