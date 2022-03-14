@@ -84,3 +84,4 @@ FolderWithAllMyTrees          # Folder
 - [ ] Make compatible with versions before Houdini 19.0
 - [ ] Support textures other than png
 - [ ] Support for render engines other than Redshift
+- [ ] Add generation of proxy geometry files per render engine
