@@ -27,6 +27,12 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         self.directoryPath = hipDir
         self.ui.directoryPath.setText(self.directoryPath)
 
+        # Menu Bar
+        # TODO HOUDINI DOESN'T LIKE DOCKED MENU BARS
+        """self.menuBar = QtWidgets.QMenuBar(self)
+        self.menuHelp = self.menuBar.addMenu("Help")
+        self.menuFile = self.menuBar.addMenu("File")"""
+
         # Set menu policy for right click menu
         self.ui.tableOfFoldersOnDisk.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.ui.tableOfTreeSubnets.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
@@ -634,7 +640,7 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
                    "refreshTablesButton": self.refreshTablesButton,
                    "clearSelectionAction": self.clearSelectionAction}
         kwargs = {**checkBoxItems, **uiItems}
-        self.fill_thread = Worker(treeDicttoImport, **kwargs)
+        self.fill_thread = Worker(treeDicttoImport, self, **kwargs)
         self.fill_thread.valueChanged.connect(self.ui.progressBar.setValue)
         self.fill_thread.textChanged.connect(self.ui.progressBarText.setText)
         self.fill_thread.start()
@@ -650,14 +656,19 @@ class Worker(QtCore.QThread):
     textChanged = QtCore.Signal(str)
     valueChanged = QtCore.Signal(int)
 
-    def __init__(self, treeDicttoImport, **kwargs):
+    def __init__(self, treeDicttoImport, interface, **kwargs):
         super(Worker, self).__init__()
+        self.interface = interface
         self.treeDicttoImport = treeDicttoImport
         self.kwargs = kwargs
 
     def run(self):
+        # TODO treeDicttoImport DOES NOT NEED ARG. CHECK BOXES FROM self.interface
         self.treeSubnetAPI(self.treeDicttoImport, **self.kwargs)
+        # TODO CHECK BOXES FROM self.interface
         self.reformatUI(**self.kwargs)
+
+        # TODO CANCEL BUTTON ON IMPORT. HOUDINI DOES NOT WANT TO KILL THREADS???
 
     def treeSubnetAPI(self, treeDicttoImport, **kwargs):
         # Check box keyword arguments
@@ -671,7 +682,7 @@ class Worker(QtCore.QThread):
         importIteration = 1
         for key, value in treeDicttoImport.items():
             subnetName = key
-            fbxFilePaths = value
+            fbxFilePaths = value  # List of paths
 
             # Progress Bar
             subnetExists = hou.node("/obj/{SUBNETNAME}".format(SUBNETNAME=subnetName))
@@ -686,7 +697,7 @@ class Worker(QtCore.QThread):
             # Import Fbx
             treeSubnet, progressMsg = execute.treeSubnetsFromDir(subnetName, fbxFilePaths,
                                                                  convertToYup=convertToYup)
-            # Position treeSubnet
+            # Position treeSubnet Node
             if progressMsg.split()[0] == "Creating":
                 createdTreeSubnets.append(treeSubnet)
                 try:
@@ -722,8 +733,10 @@ class Worker(QtCore.QThread):
         clearSelectionAction = uiItems.get("clearSelectionAction")
 
         # Hide progress bar
-        progressBar.setVisible(False)
-        progressBarText.setVisible(False)
+        #progressBar.setVisible(False)
+        #progressBarText.setVisible(False)
+        self.interface.ui.progressBar.setVisible(False)
+        self.interface.ui.progressBarText.setVisible(False)
 
         # Progress Bar and text reset
         self.valueChanged.emit(0)

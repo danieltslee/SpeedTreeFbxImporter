@@ -74,7 +74,7 @@ def generateScatterSubnets(treeSubnets, hfGeoNodePath,
     """
     Generate tree scatter subnet in specified node/context
     :param treeSubnets: Tree subnet hou.node object from which the scatter subnet will be generated
-    :param hfGeoNode: hou.node in which the scatter subnet will be placed
+    :param hfGeoNode: string path of hou.node in which the scatter subnet will be placed
     :return: List of hou.node tree scatter subnets
     """
     treeSubnets = list(treeSubnets)

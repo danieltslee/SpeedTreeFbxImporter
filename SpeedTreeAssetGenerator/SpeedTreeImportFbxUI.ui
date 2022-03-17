@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>854</width>
-    <height>794</height>
+    <width>834</width>
+    <height>787</height>
    </rect>
   </property>
   <property name="font">
@@ -257,7 +257,7 @@
           <item row="1" column="0">
            <widget class="QCheckBox" name="reimportExistingSubnets">
             <property name="text">
-             <string>CheckBoxCheckBoxCheckBoxCheckBox</string>
+             <string>Reimport Existing Subnets</string>
             </property>
            </widget>
           </item>
@@ -474,15 +474,33 @@
    </item>
    <item>
     <widget class="QProgressBar" name="progressBar">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>20</height>
+      </size>
+     </property>
      <property name="value">
-      <number>24</number>
+      <number>0</number>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="progressBarText">
      <property name="text">
-      <string>progress bar text</string>
+      <string/>
      </property>
     </widget>
    </item>
