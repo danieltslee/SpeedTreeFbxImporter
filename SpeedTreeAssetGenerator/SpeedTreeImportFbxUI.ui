@@ -500,7 +500,7 @@
    <item>
     <widget class="QLabel" name="progressBarText">
      <property name="text">
-      <string/>
+      <string>Importing Fbxs</string>
      </property>
     </widget>
    </item>
