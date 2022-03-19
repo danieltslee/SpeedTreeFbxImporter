@@ -34,7 +34,7 @@ def AssignMaterials(treeSubnet, matnetName, resetTransforms=True, matchSize=True
         lastSop = treeGeoNet.findLastNode()
 
         # Add nodes
-        addedNodes = ["pack", "output"]
+        addedNodes = ["name", "pack", "output"]
         if matchSize:
             addedNodes.insert(0, "matchsize")
         if assignMat:
@@ -47,7 +47,7 @@ def AssignMaterials(treeSubnet, matnetName, resetTransforms=True, matchSize=True
 
         # Set matchsize parms if exists
         if matchSize:
-            matchsizeNode = treeGeoNet.findNodes("type", "matchsize")[0]
+            matchsizeNode = treeGeoNet.findNodes("matchsize", method="type")[0]
             matchsizeNode.setParms({"justify_y": 1})
             matchsizeNode.setParmExpressions({"offset_y": "bbox(0, D_YMIN)*ch('scale_to_match1/scale')"})
             matchsizeNode.setParms({"doscale": 1})
@@ -56,7 +56,7 @@ def AssignMaterials(treeSubnet, matnetName, resetTransforms=True, matchSize=True
 
         # Add vex snippet to attribute wrangle. Create s@shop_materialpath to primitives
         if assignMat:
-            assignWrangle = treeGeoNet.findNodes("type", "attribwrangle")[0]
+            assignWrangle = treeGeoNet.findNodes("attribwrangle", method="type")[0]
             assignWrangle.setName(newNodesPrefix+"assign_materials")
             snippetParm = assignWrangle.parm("snippet")
             matnetPath = "../../{MATNETNAME}/".format(MATNETNAME=matnetName)
@@ -73,6 +73,14 @@ foreach (string group; groups) {{
             '''.format(MATNETPATH=matnetPath)
             snippetParm.set(assignSnippet)
             assignWrangle.setParms({"class": 1})
+
+        # Name parameters
+        nameNode = treeGeoNet.findNodes("name", method="type")[0]
+        nameNode.setParms({"name1": treeGeo.name()})
+
+        # Pack parameters
+        packNode = treeGeoNet.findNodes("pack", method="type")[0]
+        packNode.setParms({"transfer_attributes": "name"})
 
         # Layout children
         treeGeo.layoutChildren(vertical_spacing=0.35)
