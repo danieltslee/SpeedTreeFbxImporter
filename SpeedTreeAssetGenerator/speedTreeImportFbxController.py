@@ -442,6 +442,34 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         state = self.ui.reimportExistingSubnets.isChecked()
         self.ui.reimportOptions.setEnabled(state)
 
+    def checkRenderer(self):
+        """ Check if render engine is installed """
+        ropNodes = hou.ropNodeTypeCategory().nodeTypes().keys()
+        ropNodes = list(ropNodes)
+        redshiftCheck = "Redshift_ROP" in ropNodes
+        continueImport = True
+
+        # Message box if renderer is not installed
+        if not redshiftCheck:
+            dialog = QtWidgets.QMessageBox()
+            dialog.setIcon(QtWidgets.QMessageBox.Information)
+
+            dialog.setWindowTitle("Error: Redshift Is Not Installed")
+            dialog.setText("Redshift is not installed. Uncheck '"'Generate Materials and Assign Materials'"'. "
+                           "Continue with Import?")
+
+            dialog.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
+            dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
+
+            continueImport = dialog.exec_()
+
+            if continueImport == dialog.Ok:
+                continueImport = True
+            else:
+                continueImport = False
+
+        return redshiftCheck, continueImport
+
     def noTreesInTableBox(self):
         """ Message for if trees in Directory table is empty """
         dialog = QtWidgets.QMessageBox()
@@ -610,6 +638,14 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         """ Press Import Fbx button """
         # Refresh Tables
         self.refreshTablesButton()
+
+        # If gen material is checked, check Renderer. Quit if canceled is selected in checkRenderer
+        checkRenderer, continueImport = None, None
+        if self.ui.genRsMatandAssign.isChecked():
+            checkRenderer, continueImport = self.checkRenderer()
+            if not continueImport:
+                return
+
         treeDicttoImport = self.formatTreeDictToImport()
         # Quit if empty dict
         if not treeDicttoImport:
@@ -631,7 +667,7 @@ class SpeedTreeFbxImporter(QtWidgets.QWidget):
         convertToYup = self.ui.convertToYup.isChecked()
         resetTransforms = self.ui.resetTransformations.isChecked()
         matchSize = self.ui.matchSize.isChecked()
-        genRsMatandAssign = self.ui.genRsMatandAssign.isChecked()
+        genRsMatandAssign = self.ui.genRsMatandAssign.isChecked() and checkRenderer
         # Multithread import fbx and format subnets
         checkBoxItems = {"convertToYup": convertToYup, "resetTransforms": resetTransforms,
                          "matchSize": matchSize, "genRsMatandAssign": genRsMatandAssign}

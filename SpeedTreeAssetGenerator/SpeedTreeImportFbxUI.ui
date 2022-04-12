@@ -427,7 +427,7 @@
            <string>Generate Redshift Materials and Assign Materials</string>
           </property>
           <property name="checked">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
          </widget>
         </item>
